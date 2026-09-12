@@ -1,57 +1,57 @@
-<!-- pages/wrongbook/wrongbook.wxml ´íÌâ±¾ -->
+<!-- pages/wrongbook/wrongbook.wxml ï¿½ï¿½ï¿½â±¾ -->
 <view class="page">
-  <!-- ·ÖÀàÉ¸Ñ¡ -->
+  <!-- ï¿½ï¿½ï¿½ï¿½É¸Ñ¡ -->
   <view class="filters">
     <view wx:for="{{filters}}" wx:key="key"
           class="filter {{activeFilter === item.key ? 'active' : ''}}"
           bindtap="onFilter" data-key="{{item.key}}">{{item.label}}</view>
   </view>
 
-  <!-- ÁÐ±í -->
-  <view wx:if="{{list.length === 0}}" class="empty-tip">ÔÝÎÞ´íÌâ£¬µã»÷ÓÒÉÏ½Ç + Ìí¼Ó</view>
+  <!-- ï¿½Ð±ï¿½ -->
+  <view wx:if="{{list.length === 0}}" class="empty-tip">ï¿½ï¿½ï¿½Þ´ï¿½ï¿½â£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï½ï¿½ + ï¿½ï¿½ï¿½ï¿½</view>
   <view class="card item" wx:for="{{list}}" wx:key="_id">
     <view class="item-top">
       <text class="tag tag-{{item.prefix}}">{{item.prefixName}}</text>
       <view class="item-ops">
-        <text class="op" bindtap="openEdit" data-id="{{item._id}}">±à¼­</text>
-        <text class="op op-del" bindtap="deleteWrong" data-id="{{item._id}}">É¾³ý</text>
+        <text class="op" bindtap="openEdit" data-id="{{item._id}}">ï¿½à¼­</text>
+        <text class="op op-del" bindtap="deleteWrong" data-id="{{item._id}}">É¾ï¿½ï¿½</text>
       </view>
     </view>
-    <view class="q">Q£º{{item.question}}</view>
-    <view class="a" wx:if="{{item.myAnswer}}">ÎÒµÄ´ð°¸£º{{item.myAnswer}}</view>
-    <view class="r" wx:if="{{item.wrongReason}}">´íÒò£º{{item.wrongReason}}</view>
+    <view class="q">Qï¿½ï¿½{{item.question}}</view>
+    <view class="a" wx:if="{{item.myAnswer}}">ï¿½ÒµÄ´ð°¸£ï¿½{{item.myAnswer}}</view>
+    <view class="r" wx:if="{{item.wrongReason}}">ï¿½ï¿½ï¿½ï¿½{{item.wrongReason}}</view>
   </view>
 
-  <!-- ÐÂÔö°´Å¥ -->
-  <view class="add-btn" bindtap="openAdd">£« Ìí¼Ó´íÌâ</view>
+  <!-- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å¥ -->
+  <view class="add-btn" bindtap="openAdd">ï¿½ï¿½ ï¿½ï¿½ï¿½Ó´ï¿½ï¿½ï¿½</view>
 
-  <!-- ±à¼­µ¯²ã -->
+  <!-- ï¿½à¼­ï¿½ï¿½ï¿½ï¿½ -->
   <view class="mask" wx:if="{{showEditor}}" bindtap="closeEditor"></view>
   <view class="sheet" wx:if="{{showEditor}}">
-    <view class="sheet-title">{{editing ? '±à¼­´íÌâ' : 'ÐÂÔö´íÌâ'}}</view>
+    <view class="sheet-title">{{editing ? 'ï¿½à¼­ï¿½ï¿½ï¿½ï¿½' : 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'}}</view>
 
     <view class="field">
-      <text class="field-label">·ÖÀà</text>
+      <text class="field-label">ï¿½ï¿½ï¿½ï¿½</text>
       <picker class="field-picker" range="{{prefixOptions}}" value="{{prefixIndex}}" bindchange="onPrefixChange">
-        <view class="picker-text">{{form.prefix}} 70</view>
+        <view class="picker-text">{{form.prefix}} ï¿½7ï¿½0</view>
       </picker>
     </view>
     <view class="field-col">
-      <text class="field-label">ÌâÄ¿</text>
-      <textarea class="field-area" placeholder="ÊäÈëÌâÄ¿" value="{{form.question}}" data-field="question" bindinput="onFormInput"/>
+      <text class="field-label">ï¿½ï¿½Ä¿</text>
+      <textarea class="field-area" placeholder="ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿" value="{{form.question}}" data-field="question" bindinput="onFormInput"/>
     </view>
     <view class="field-col">
-      <text class="field-label">ÎÒµÄ´ð°¸</text>
-      <textarea class="field-area" placeholder="¿ÉÑ¡" value="{{form.myAnswer}}" data-field="myAnswer" bindinput="onFormInput"/>
+      <text class="field-label">ï¿½ÒµÄ´ï¿½</text>
+      <textarea class="field-area" placeholder="ï¿½ï¿½Ñ¡" value="{{form.myAnswer}}" data-field="myAnswer" bindinput="onFormInput"/>
     </view>
     <view class="field-col">
-      <text class="field-label">´íÒò</text>
-      <textarea class="field-area" placeholder="¿ÉÑ¡" value="{{form.wrongReason}}" data-field="wrongReason" bindinput="onFormInput"/>
+      <text class="field-label">ï¿½ï¿½ï¿½ï¿½</text>
+      <textarea class="field-area" placeholder="ï¿½ï¿½Ñ¡" value="{{form.wrongReason}}" data-field="wrongReason" bindinput="onFormInput"/>
     </view>
 
     <view class="sheet-btns">
-      <button class="btn-cancel" bindtap="closeEditor">È¡Ïû</button>
-      <button class="btn-save" bindtap="saveWrong">±£´æ</button>
+      <button class="btn-cancel" bindtap="closeEditor">È¡ï¿½ï¿½</button>
+      <button class="btn-save" bindtap="saveWrong">ï¿½ï¿½ï¿½ï¿½</button>
     </view>
   </view>
 </view>

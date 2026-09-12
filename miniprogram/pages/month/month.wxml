@@ -1,8 +1,8 @@
-<!-- pages/month/month.wxml ÔÂÊÓÍ¼ -->
+<!-- pages/month/month.wxml ï¿½ï¿½ï¿½ï¿½Í¼ -->
 <view class="page">
   <view class="card">
     <view class="m-title">{{monthText}}</view>
-    <view class="m-rate">±¾ÔÂ´ò¿¨¸²¸ÇÂÊ {{rate}}%</view>
+    <view class="m-rate">ï¿½ï¿½ï¿½Â´ò¿¨¸ï¿½ï¿½ï¿½ï¿½ï¿½ {{rate}}%</view>
     <view class="m-bar-bg"><view class="m-bar" style="width:{{rate}}%"></view></view>
   </view>
 

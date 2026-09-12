@@ -1,100 +1,100 @@
-<!-- pages/index/index.wxml ½ñÈÕ´ò¿¨ -->
+<!-- pages/index/index.wxml ï¿½ï¿½ï¿½Õ´ï¿½ -->
 <view class="page">
-  <!-- ¶¥²¿ÈÕÆÚ -->
+  <!-- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ -->
   <view class="header">
     <view class="h-date">{{todayDate}}</view>
     <view class="h-week">{{weekdayText}}</view>
   </view>
 
-  <!-- ¸ÅÀÀ -->
+  <!-- ï¿½ï¿½ï¿½ï¿½ -->
   <view class="overview card">
     <view class="ov-item">
       <view class="ov-num">{{doneCount}}<text class="ov-unit">/3</text></view>
-      <view class="ov-label">½ñÈÕÑ§Ï°</view>
+      <view class="ov-label">ï¿½ï¿½ï¿½ï¿½Ñ§Ï°</view>
     </view>
     <view class="ov-divider"></view>
     <view class="ov-item">
       <view class="ov-num">{{streak}}</view>
-      <view class="ov-label">Á¬ÐøÌìÊý</view>
+      <view class="ov-label">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</view>
     </view>
-    <view class="ov-stats" bindtap="goStats">”9Ý6 Í³¼Æ</view>
+    <view class="ov-stats" bindtap="goStats">ï¿½9ï¿½6 Í³ï¿½ï¿½</view>
   </view>
 
-  <!-- Ñ§Ï°°å¿é -->
-  <view class="sec-title">”9Þ8 Ñ§Ï°´ò¿¨</view>
+  <!-- Ñ§Ï°ï¿½ï¿½ï¿½ -->
+  <view class="sec-title">ï¿½9ï¿½8 Ñ§Ï°ï¿½ï¿½</view>
   <view class="card study {{item.done ? 'study-done' : ''}}"
         wx:for="{{sections}}" wx:key="key"
         bindtap="onStudyTap" data-key="{{item.key}}">
     <view class="study-emoji">{{item.emoji}}</view>
     <view class="study-mid">
       <view class="study-name">{{item.name}}</view>
-      <view class="study-sub" wx:if="{{item.done}}">ÒÑ´ò¿¨ ¡¤ ÓÃÊ± {{item.duration}} ·Ö</view>
-      <view class="study-sub muted" wx:else>Î´Íê³É£¬µã»÷´ò¿¨</view>
+      <view class="study-sub" wx:if="{{item.done}}">ï¿½Ñ´ï¿½ ï¿½ï¿½ ï¿½ï¿½Ê± {{item.duration}} ï¿½ï¿½</view>
+      <view class="study-sub muted" wx:else>Î´ï¿½ï¿½É£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</view>
     </view>
-    <view class="study-flag">{{item.done ? '7¼3' : '¡ð'}}</view>
+    <view class="study-flag">{{item.done ? 'ï¿½7ï¿½3' : 'ï¿½ï¿½'}}</view>
   </view>
 
-  <!-- ÈÕ³£½¡Éí -->
-  <view class="sec-title">”9Ä1„1‚5 ÈÕ³£½¡Éí</view>
+  <!-- ï¿½Õ³ï¿½ï¿½ï¿½ï¿½ï¿½ -->
+  <view class="sec-title">ï¿½9ï¿½1ï¿½1ï¿½5 ï¿½Õ³ï¿½ï¿½ï¿½ï¿½ï¿½</view>
   <view class="card fitness" bindtap="openFitness">
     <block wx:if="{{todayFitness}}">
       <view class="fit-type">{{todayFitness.typeText}}</view>
-      <view class="fit-sub">Ê±³¤ {{todayFitness.duration}} ·Ö
-        <text wx:if="{{todayFitness.distance}}"> ¡¤ {{todayFitness.distance}} km</text>
-        <text wx:if="{{todayFitness.weight}}"> ¡¤ {{todayFitness.weight}} kg</text>
+      <view class="fit-sub">Ê±ï¿½ï¿½ {{todayFitness.duration}} ï¿½ï¿½
+        <text wx:if="{{todayFitness.distance}}"> ï¿½ï¿½ {{todayFitness.distance}} km</text>
+        <text wx:if="{{todayFitness.weight}}"> ï¿½ï¿½ {{todayFitness.weight}} kg</text>
       </view>
     </block>
-    <view class="fit-empty" wx:else>µã»÷¼ÇÂ¼½ñÈÕ½¡Éí ¡ú</view>
+    <view class="fit-empty" wx:else>ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½Õ½ï¿½ï¿½ï¿½ ï¿½ï¿½</view>
   </view>
 
-  <!-- µ×²¿¿ì½ÝÈë¿Ú -->
-  <view class="quick" bindtap="goWrongbook">£« ¼Ó´íÌâ</view>
+  <!-- ï¿½×²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ -->
+  <view class="quick" bindtap="goWrongbook">ï¿½ï¿½ ï¿½Ó´ï¿½ï¿½ï¿½</view>
 
-  <!-- ½¡Éí¼ÇÂ¼µ¯²ã -->
+  <!-- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ -->
   <view class="mask" wx:if="{{showFitness}}" bindtap="closeFitness"></view>
   <view class="sheet" wx:if="{{showFitness}}">
-    <view class="sheet-title">¼ÇÂ¼½¡Éí</view>
+    <view class="sheet-title">ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½</view>
 
     <view class="field">
-      <text class="field-label">ÀàÐÍ</text>
+      <text class="field-label">ï¿½ï¿½ï¿½ï¿½</text>
       <picker class="field-picker" range="{{typeOptions}}" value="{{typeIndex}}" bindchange="onTypeChange">
-        <view class="picker-text">{{fitnessForm.typeText}} 70</view>
+        <view class="picker-text">{{fitnessForm.typeText}} ï¿½7ï¿½0</view>
       </picker>
     </view>
 
     <view class="field">
-      <text class="field-label">Ê±³¤(·Ö)</text>
+      <text class="field-label">Ê±ï¿½ï¿½(ï¿½ï¿½)</text>
       <input class="field-input" type="number" placeholder="30-40" value="{{fitnessForm.duration}}" data-field="duration" bindinput="onFitnessInput"/>
     </view>
 
     <view class="field" wx:if="{{fitnessForm.type === 'run'}}">
-      <text class="field-label">¾àÀë(km)</text>
-      <input class="field-input" type="digit" placeholder="Èç 6.0" value="{{fitnessForm.distance}}" data-field="distance" bindinput="onFitnessInput"/>
+      <text class="field-label">ï¿½ï¿½ï¿½ï¿½(km)</text>
+      <input class="field-input" type="digit" placeholder="ï¿½ï¿½ 6.0" value="{{fitnessForm.distance}}" data-field="distance" bindinput="onFitnessInput"/>
     </view>
 
     <view class="field">
-      <text class="field-label">ÌåÖØ(kg)</text>
-      <input class="field-input" type="digit" placeholder="¿ÉÑ¡" value="{{fitnessForm.weight}}" data-field="weight" bindinput="onFitnessInput"/>
+      <text class="field-label">ï¿½ï¿½ï¿½ï¿½(kg)</text>
+      <input class="field-input" type="digit" placeholder="ï¿½ï¿½Ñ¡" value="{{fitnessForm.weight}}" data-field="weight" bindinput="onFitnessInput"/>
     </view>
 
     <view class="field">
-      <text class="field-label">Ï¥¸ÇÌÛÍ´(0-10)</text>
+      <text class="field-label">Ï¥ï¿½ï¿½ï¿½ï¿½Í´(0-10)</text>
       <input class="field-input" type="number" placeholder="0" value="{{fitnessForm.knee}}" data-field="knee" bindinput="onFitnessInput"/>
     </view>
 
     <view class="field">
-      <text class="field-label">ÄNÎÑÌÛÍ´(0-10)</text>
+      <text class="field-label">ï¿½Nï¿½ï¿½ï¿½ï¿½Í´(0-10)</text>
       <input class="field-input" type="number" placeholder="0" value="{{fitnessForm.popliteal}}" data-field="popliteal" bindinput="onFitnessInput"/>
     </view>
 
     <view class="field">
-      <text class="field-label">±¸×¢</text>
-      <input class="field-input" placeholder="¿ÉÑ¡" value="{{fitnessForm.note}}" data-field="note" bindinput="onFitnessInput"/>
+      <text class="field-label">ï¿½ï¿½×¢</text>
+      <input class="field-input" placeholder="ï¿½ï¿½Ñ¡" value="{{fitnessForm.note}}" data-field="note" bindinput="onFitnessInput"/>
     </view>
 
     <view class="sheet-btns">
-      <button class="btn-cancel" bindtap="closeFitness">È¡Ïû</button>
-      <button class="btn-save" bindtap="saveFitness">±£´æ</button>
+      <button class="btn-cancel" bindtap="closeFitness">È¡ï¿½ï¿½</button>
+      <button class="btn-save" bindtap="saveFitness">ï¿½ï¿½ï¿½ï¿½</button>
     </view>
   </view>
 </view>

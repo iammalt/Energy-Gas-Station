@@ -1,12 +1,12 @@
-// pages/index/index.js ½ñÈÕ´ò¿¨£¨Ê×Ò³£©
+// pages/index/index.js ï¿½ï¿½ï¿½Õ´ò¿¨£ï¿½ï¿½ï¿½Ò³ï¿½ï¿½
 const util = require('../../utils/util.js')
 const store = require('../../utils/store.js')
 
-// Èý¸ö¹Ì¶¨Ñ§Ï°°å¿é
+// ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶ï¿½Ñ§Ï°ï¿½ï¿½ï¿½
 const SECTIONS = [
-  { key: 'embed', name: 'Ç¶ÈëÊ½¹¤×÷Á÷', emoji: '”9æ9' },
-  { key: 'ai', name: 'AI Ñ§Ï°', emoji: '•0Í6' },
-  { key: 'exam', name: 'Èí¿¼±¸¿¼', emoji: '”9ß2' }
+  { key: 'embed', name: 'Ç¶ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½', emoji: 'ï¿½9ï¿½9' },
+  { key: 'ai', name: 'AI Ñ§Ï°', emoji: 'ï¿½0ï¿½6' },
+  { key: 'exam', name: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½', emoji: 'ï¿½9ï¿½2' }
 ]
 
 Page({
@@ -18,13 +18,13 @@ Page({
     streak: 0,
     todayFitness: null,
 
-    // ½¡Éí¼ÇÂ¼µ¯²ã
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½
     showFitness: false,
-    typeOptions: ['Á¦Á¿', 'ÅÜ²½'],
+    typeOptions: ['ï¿½ï¿½ï¿½ï¿½', 'ï¿½Ü²ï¿½'],
     typeIndex: 0,
     fitnessForm: {
       type: 'strength',
-      typeText: 'Á¦Á¿',
+      typeText: 'ï¿½ï¿½ï¿½ï¿½',
       duration: '',
       distance: '',
       weight: '',
@@ -46,16 +46,16 @@ Page({
     this.loadData()
   },
 
-  // À­È¡½ñÈÕÊý¾Ý²¢äÖÈ¾
+  // ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý²ï¿½ï¿½ï¿½È¾
   async loadData() {
-    wx.showLoading({ title: '¼ÓÔØÖÐ' })
+    wx.showLoading({ title: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½' })
     try {
       const today = this.data.todayDate
       const weekStart = util.formatDate(util.getWeekStart(new Date()))
       const weekEnd = new Date(util.getWeekStart(new Date()))
       weekEnd.setDate(weekEnd.getDate() + 6)
       const weekEndStr = util.formatDate(weekEnd)
-      // Á¬ÐøÌìÊýÐèÒª½Ï´ó·¶Î§£¬È¡½ü 400 Ìì
+      // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½Ï´ï¿½Î§ï¿½ï¿½È¡ï¿½ï¿½ 400 ï¿½ï¿½
       const streakStart = util.formatDate(new Date(Date.now() - 400 * 86400000))
 
       const [todayCheckins, weekCheckins, streakAll, todayFitness] = await Promise.all([
@@ -65,7 +65,7 @@ Page({
         store.getFitnessRange(today, today)
       ])
 
-      // äÖÈ¾Ñ§Ï°°å¿é¹´Ñ¡Ì¬
+      // ï¿½ï¿½È¾Ñ§Ï°ï¿½ï¿½é¹´Ñ¡Ì¬
       const doneMap = {}
       todayCheckins.forEach(c => { if (c.done) doneMap[c.section] = c })
       const sections = SECTIONS.map(s => {
@@ -78,18 +78,18 @@ Page({
       })
       const doneCount = sections.filter(s => s.done).length
 
-      // Á¬Ðø´ò¿¨ÌìÊý
+      // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
       const streakSet = new Set()
       streakAll.forEach(c => { if (c.done) streakSet.add(c.date) })
       const streak = util.calcStreak(streakSet)
 
-      // ½ñÈÕ½¡Éí
+      // ï¿½ï¿½ï¿½Õ½ï¿½ï¿½ï¿½
       let fitness = null
       if (todayFitness.length) {
         const f = todayFitness[0]
         fitness = {
           id: f._id,
-          typeText: f.type === 'run' ? 'ÅÜ²½' : 'Á¦Á¿',
+          typeText: f.type === 'run' ? 'ï¿½Ü²ï¿½' : 'ï¿½ï¿½ï¿½ï¿½',
           duration: f.duration || 0,
           distance: f.distance || '',
           weight: f.weight || ''
@@ -99,52 +99,52 @@ Page({
       this.setData({ sections, doneCount, streak, todayFitness: fitness })
     } catch (e) {
       console.error(e)
-      wx.showToast({ title: '¼ÓÔØÊ§°Ü', icon: 'none' })
+      wx.showToast({ title: 'ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½', icon: 'none' })
     } finally {
       wx.hideLoading()
     }
   },
 
-  // µã»÷Ñ§Ï°°å¿é¿¨Æ¬
+  // ï¿½ï¿½ï¿½Ñ§Ï°ï¿½ï¿½é¿¨Æ¬
   onStudyTap(e) {
     const key = e.currentTarget.dataset.key
     const sec = this.data.sections.find(s => s.key === key)
     if (!sec) return
 
-    // ÒÑ´ò¿¨ -> Ñ¯ÎÊÈ¡Ïû
+    // ï¿½Ñ´ï¿½ -> Ñ¯ï¿½ï¿½È¡ï¿½ï¿½
     if (sec.done) {
       wx.showModal({
-        title: 'È¡Ïû´ò¿¨',
-        content: 'È·¶¨ÒªÈ¡Ïû¡¸' + sec.name + '¡¹½ñÈÕ´ò¿¨Âð£¿',
+        title: 'È¡ï¿½ï¿½ï¿½ï¿½',
+        content: 'È·ï¿½ï¿½ÒªÈ¡ï¿½ï¿½ï¿½ï¿½' + sec.name + 'ï¿½ï¿½ï¿½ï¿½ï¿½Õ´ï¿½ï¿½ï¿½',
         success: async (res) => {
           if (!res.confirm) return
-          wx.showLoading({ title: '´¦ÀíÖÐ' })
+          wx.showLoading({ title: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½' })
           try {
             await store.deleteCheckin(sec.id)
-            wx.showToast({ title: 'ÒÑÈ¡Ïû', icon: 'none' })
+            wx.showToast({ title: 'ï¿½ï¿½È¡ï¿½ï¿½', icon: 'none' })
             this.loadData()
           } catch (err) {
             wx.hideLoading()
-            wx.showToast({ title: '²Ù×÷Ê§°Ü', icon: 'none' })
+            wx.showToast({ title: 'ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½', icon: 'none' })
           }
         }
       })
       return
     }
 
-    // Î´´ò¿¨ -> ÊäÈëÓÃÊ±ºó´ò¿¨
+    // Î´ï¿½ï¿½ -> ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½
     wx.showModal({
-      title: 'Ñ§Ï°´ò¿¨ ¡¤ ' + sec.name,
+      title: 'Ñ§Ï°ï¿½ï¿½ ï¿½ï¿½ ' + sec.name,
       editable: true,
-      placeholderText: '±¾´ÎÓÃÊ±£¨·ÖÖÓ£©',
+      placeholderText: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Ó£ï¿½',
       success: async (res) => {
         if (!res.confirm) return
         const duration = parseInt(res.content, 10)
         if (!duration || duration <= 0) {
-          wx.showToast({ title: 'ÇëÊäÈëÓÐÐ§·ÖÖÓÊý', icon: 'none' })
+          wx.showToast({ title: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½', icon: 'none' })
           return
         }
-        wx.showLoading({ title: '´ò¿¨ÖÐ' })
+        wx.showLoading({ title: 'ï¿½ï¿½ï¿½ï¿½' })
         try {
           await store.upsertCheckin({
             date: this.data.todayDate,
@@ -153,17 +153,17 @@ Page({
             duration,
             note: ''
           })
-          wx.showToast({ title: '´ò¿¨³É¹¦', icon: 'success' })
+          wx.showToast({ title: 'ï¿½ò¿¨³É¹ï¿½', icon: 'success' })
           this.loadData()
         } catch (err) {
           wx.hideLoading()
-          wx.showToast({ title: '´ò¿¨Ê§°Ü', icon: 'none' })
+          wx.showToast({ title: 'ï¿½ï¿½Ê§ï¿½ï¿½', icon: 'none' })
         }
       }
     })
   },
 
-  // ´ò¿ª½¡Éí¼ÇÂ¼µ¯²ã
+  // ï¿½ò¿ª½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½
   openFitness() {
     this.setData({ showFitness: true })
   },
@@ -176,7 +176,7 @@ Page({
     this.setData({
       typeIndex: idx,
       'fitnessForm.type': type,
-      'fitnessForm.typeText': type === 'strength' ? 'Á¦Á¿' : 'ÅÜ²½'
+      'fitnessForm.typeText': type === 'strength' ? 'ï¿½ï¿½ï¿½ï¿½' : 'ï¿½Ü²ï¿½'
     })
   },
   onFitnessInput(e) {
@@ -184,19 +184,19 @@ Page({
     this.setData({ ['fitnessForm.' + field]: e.detail.value })
   },
 
-  // ±£´æ½¡Éí¼ÇÂ¼
+  // ï¿½ï¿½ï¿½æ½¡ï¿½ï¿½ï¿½ï¿½Â¼
   async saveFitness() {
     const f = this.data.fitnessForm
     const duration = parseInt(f.duration, 10)
     if (!duration || duration <= 0) {
-      wx.showToast({ title: 'ÇëÌîÐ´Ê±³¤(·ÖÖÓ)', icon: 'none' })
+      wx.showToast({ title: 'ï¿½ï¿½ï¿½ï¿½Ð´Ê±ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½)', icon: 'none' })
       return
     }
     const pain = {
       knee: f.knee === '' ? 0 : parseInt(f.knee, 10),
       popliteal: f.popliteal === '' ? 0 : parseInt(f.popliteal, 10)
     }
-    wx.showLoading({ title: '±£´æÖÐ' })
+    wx.showLoading({ title: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½' })
     try {
       await store.addFitness({
         date: this.data.todayDate,
@@ -207,21 +207,21 @@ Page({
         pain,
         note: f.note
       })
-      wx.showToast({ title: 'ÒÑ¼ÇÂ¼', icon: 'success' })
+      wx.showToast({ title: 'ï¿½Ñ¼ï¿½Â¼', icon: 'success' })
       this.setData({ showFitness: false })
       this.loadData()
     } catch (err) {
       wx.hideLoading()
-      wx.showToast({ title: '±£´æÊ§°Ü', icon: 'none' })
+      wx.showToast({ title: 'ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½', icon: 'none' })
     }
   },
 
-  // µ×²¿¿ì½ÝÈë¿Ú£ºÈ¥´íÌâ±¾
+  // ï¿½×²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú£ï¿½È¥ï¿½ï¿½ï¿½â±¾
   goWrongbook() {
     wx.switchTab({ url: '/pages/wrongbook/wrongbook' })
   },
 
-  // ²é¿´Í³¼Æ
+  // ï¿½é¿´Í³ï¿½ï¿½
   goStats() {
     wx.navigateTo({ url: '/pages/stats/stats' })
   }

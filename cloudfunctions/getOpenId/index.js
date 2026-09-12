@@ -1,5 +1,5 @@
 // cloudfunctions/getOpenId/index.js
-// »ñÈ¡µ±Ç°ÓÃ»§µÄ openid£¬ÓÃÓÚ¶à¶ËÊı¾İ¸ôÀëÓëÍ¬²½
+// ï¿½ï¿½È¡ï¿½ï¿½Ç°ï¿½Ã»ï¿½ï¿½ï¿½ openidï¿½ï¿½ï¿½ï¿½ï¿½Ú¶ï¿½ï¿½ï¿½ï¿½ï¿½İ¸ï¿½ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½
 const cloud = require('wx-server-sdk')
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 

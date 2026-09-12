@@ -1,4 +1,4 @@
-// pages/stats/stats.js Í³¼Æ
+// pages/stats/stats.js Í³ï¿½ï¿½
 const util = require('../../utils/util.js')
 const store = require('../../utils/store.js')
 
@@ -7,7 +7,7 @@ Page({
     streak: 0,
     week: { embed: 0, ai: 0, exam: 0 },
     month: { embed: 0, ai: 0, exam: 0 },
-    trend: [] // ×î½ü 4 ÖÜÍê³ÉÂÊ
+    trend: [] // ï¿½ï¿½ï¿½ 4 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
   },
 
   onShow() {
@@ -15,31 +15,31 @@ Page({
   },
 
   async loadData() {
-    wx.showLoading({ title: '¼ÓÔØÖÐ' })
+    wx.showLoading({ title: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½' })
     try {
       const now = new Date()
 
-      // Á¬ÐøÌìÊý£ºÈ¡½ü 400 ÌìËùÓÐÑ§Ï°´ò¿¨
+      // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ 400 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ§Ï°ï¿½ï¿½
       const allStart = util.formatDate(new Date(now.getTime() - 400 * 86400000))
       const all = await store.getCheckinsRange(allStart, util.formatDate(now))
       const set = new Set()
       all.forEach(c => { if (c.done) set.add(c.date) })
       const streak = util.calcStreak(set)
 
-      // ±¾ÖÜ
+      // ï¿½ï¿½ï¿½ï¿½
       const ws = util.getWeekStart(now)
       const we = new Date(ws)
       we.setDate(we.getDate() + 6)
       const weekCheck = await store.getCheckinsRange(util.formatDate(ws), util.formatDate(we))
       const week = this.calcSectionRate(weekCheck, 7)
 
-      // ±¾ÔÂ
+      // ï¿½ï¿½ï¿½ï¿½
       const ms = new Date(now.getFullYear(), now.getMonth(), 1)
       const me = new Date(now.getFullYear(), now.getMonth() + 1, 0)
       const monthCheck = await store.getCheckinsRange(util.formatDate(ms), util.formatDate(me))
       const month = this.calcSectionRate(monthCheck, me.getDate())
 
-      // Ç÷ÊÆ£º×î½ü 4 ÖÜÍê³ÉÂÊ£¨°´¼ÇÂ¼Êý¼ÆËã£©
+      // ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½ 4 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ã£©
       const trend = []
       for (let i = 3; i >= 0; i--) {
         const s = new Date(ws)
@@ -59,13 +59,13 @@ Page({
       this.setData({ streak, week, month, trend })
     } catch (e) {
       console.error(e)
-      wx.showToast({ title: '¼ÓÔØÊ§°Ü', icon: 'none' })
+      wx.showToast({ title: 'ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½', icon: 'none' })
     } finally {
       wx.hideLoading()
     }
   },
 
-  // ¸÷°å¿éÍê³ÉÂÊ£¨Ó¦´ò¿¨ÌìÊý = days£©
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê£ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ = daysï¿½ï¿½
   calcSectionRate(list, days) {
     const m = { embed: 0, ai: 0, exam: 0 }
     list.forEach(c => { if (c.done) m[c.section] = m[c.section] + 1 })

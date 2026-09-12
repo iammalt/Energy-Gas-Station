@@ -1,15 +1,15 @@
-// utils/store.js ÔÆÊý¾Ý¿â¶ÁÐ´·â×°
-// ËùÓÐ²éÑ¯¾ù°´ openid ¹ýÂË£¬±£Ö¤¶à¶ËÍ¬ÕËºÅÊý¾Ý¸ôÀëÓëÍ¬²½
+// utils/store.js ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½Ð´ï¿½ï¿½×°
+// ï¿½ï¿½ï¿½Ð²ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ openid ï¿½ï¿½ï¿½Ë£ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½Í¬ï¿½Ëºï¿½ï¿½ï¿½ï¿½Ý¸ï¿½ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½
 const db = wx.cloud.database()
 const _ = db.command
 
-// È·±£ openid ¾ÍÐ÷£¨À´×Ô app.js µÄÔÆº¯Êýµ÷ÓÃ½á¹û£©
+// È·ï¿½ï¿½ openid ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ app.js ï¿½ï¿½ï¿½Æºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã½ï¿½ï¿½ï¿½ï¿½
 function openid() {
   return getApp().ensureOpenid()
 }
 
-// ===== Ñ§Ï°´ò¿¨ checkins =====
-// ´ò¿¨»ò¸üÐÂ£¨Í¬Ò»ÌìÍ¬Ò»°å¿éÎ¨Ò»£©
+// ===== Ñ§Ï°ï¿½ï¿½ checkins =====
+// ï¿½ò¿¨»ï¿½ï¿½ï¿½Â£ï¿½Í¬Ò»ï¿½ï¿½Í¬Ò»ï¿½ï¿½ï¿½Î¨Ò»ï¿½ï¿½
 async function upsertCheckin({ date, section, done, duration, note }) {
   const oid = await openid()
   const res = await db.collection('checkins')
@@ -25,12 +25,12 @@ async function upsertCheckin({ date, section, done, duration, note }) {
   })
 }
 
-// È¡Ïû´ò¿¨£¨É¾³ýµ±Ìì¸Ã°å¿é¼ÇÂ¼£©
+// È¡ï¿½ï¿½ï¿½ò¿¨£ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã°ï¿½ï¿½ï¿½Â¼ï¿½ï¿½
 async function deleteCheckin(id) {
   return db.collection('checkins').doc(id).remove()
 }
 
-// ²éÑ¯Ä³ÈÕÆÚ·¶Î§ÄÚµÄÑ§Ï°´ò¿¨
+// ï¿½ï¿½Ñ¯Ä³ï¿½ï¿½ï¿½Ú·ï¿½Î§ï¿½Úµï¿½Ñ§Ï°ï¿½ï¿½
 async function getCheckinsRange(start, end) {
   const oid = await openid()
   const res = await db.collection('checkins')
@@ -40,7 +40,7 @@ async function getCheckinsRange(start, end) {
   return res.data
 }
 
-// ===== ÈÕ³£½¡Éí fitness =====
+// ===== ï¿½Õ³ï¿½ï¿½ï¿½ï¿½ï¿½ fitness =====
 async function addFitness({ date, type, duration, distance, weight, pain, note }) {
   const oid = await openid()
   return db.collection('fitness').add({
@@ -61,7 +61,7 @@ async function deleteFitness(id) {
   return db.collection('fitness').doc(id).remove()
 }
 
-// ===== ´íÌâ±¾ wrongbooks =====
+// ===== ï¿½ï¿½ï¿½â±¾ wrongbooks =====
 async function addWrong({ prefix, question, myAnswer, wrongReason }) {
   const oid = await openid()
   return db.collection('wrongbooks').add({
@@ -77,7 +77,7 @@ async function deleteWrong(id) {
   return db.collection('wrongbooks').doc(id).remove()
 }
 
-// ÁÐ³ö´íÌâ£»prefix Îª 'ALL' Ê±²»¹ýÂË·ÖÀà
+// ï¿½Ð³ï¿½ï¿½ï¿½ï¿½â£»prefix Îª 'ALL' Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Ë·ï¿½ï¿½ï¿½
 async function getWrongs(prefix) {
   const oid = await openid()
   const where = { _openid: oid }

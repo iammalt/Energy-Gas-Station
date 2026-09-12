@@ -1,6 +1,6 @@
-// utils/util.js Í¨ÓÃÈÕÆÚÓëÍ³¼Æ¹¤¾ß
+// utils/util.js Í¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í³ï¿½Æ¹ï¿½ï¿½ï¿½
 
-// ¸ñÊ½»¯Îª YYYY-MM-DD£¨±¾µØÊ±Çø£©
+// ï¿½ï¿½Ê½ï¿½ï¿½Îª YYYY-MM-DDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
 function formatDate(date) {
   const y = date.getFullYear()
   const m = ('0' + (date.getMonth() + 1)).slice(-2)
@@ -8,29 +8,29 @@ function formatDate(date) {
   return y + '-' + m + '-' + d
 }
 
-// ÒÔÖÜÒ»ÎªÒ»ÖÜÆðµã£¬·µ»Ø±¾ÖÜÒ» 0 µãµÄ Date
+// ï¿½ï¿½ï¿½ï¿½Ò»ÎªÒ»ï¿½ï¿½ï¿½ï¿½ã£¬ï¿½ï¿½ï¿½Ø±ï¿½ï¿½ï¿½Ò» 0 ï¿½ï¿½ï¿½ Date
 function getWeekStart(date) {
   const d = new Date(date)
-  const day = d.getDay() || 7 // ÖÜÈÕ=0 ×ªÎª 7
+  const day = d.getDay() || 7 // ï¿½ï¿½ï¿½ï¿½=0 ×ªÎª 7
   d.setDate(d.getDate() - (day - 1))
   d.setHours(0, 0, 0, 0)
   return d
 }
 
-const WEEK_NAMES = ['ÈÕ', 'Ò»', '¶þ', 'Èý', 'ËÄ', 'Îå', 'Áù']
+const WEEK_NAMES = ['ï¿½ï¿½', 'Ò»', 'ï¿½ï¿½', 'ï¿½ï¿½', 'ï¿½ï¿½', 'ï¿½ï¿½', 'ï¿½ï¿½']
 
-// ·µ»Ø¡°ÐÇÆÚX¡±
+// ï¿½ï¿½ï¿½Ø¡ï¿½ï¿½ï¿½ï¿½ï¿½Xï¿½ï¿½
 function weekdayText(date) {
-  return 'ÐÇÆÚ' + WEEK_NAMES[date.getDay()]
+  return 'ï¿½ï¿½ï¿½ï¿½' + WEEK_NAMES[date.getDay()]
 }
 
-// ¼ÆËãÁ¬Ðø´ò¿¨ÌìÊý£ºdates ÎªÒÑ´ò¿¨ÈÕÆÚ×Ö·û´®¼¯ºÏ(Set »òÊý×é)
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½dates Îªï¿½Ñ´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(Set ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
 function calcStreak(dates) {
   const set = dates instanceof Set ? dates : new Set(dates)
   let streak = 0
   const cur = new Date()
   cur.setHours(0, 0, 0, 0)
-  // ½ñÌì»¹Ã»´ò¿¨Ê±£¬´Ó×òÌìÆðËã£¬±ÜÃâÎóÅÐÖÐ¶Ï
+  // ï¿½ï¿½ï¿½ì»¹Ã»ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ã£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½
   if (!set.has(formatDate(cur))) {
     cur.setDate(cur.getDate() - 1)
   }

@@ -1,13 +1,13 @@
-// pages/week/week.js ÖÜÊÓÍ¼
+// pages/week/week.js ï¿½ï¿½ï¿½ï¿½Í¼
 const util = require('../../utils/util.js')
 const store = require('../../utils/store.js')
 
 Page({
   data: {
     weekRangeText: '',
-    days: [],      // ±¾ÖÜ 7 Ìì
-    rate: 0,       // Ñ§Ï°Íê³ÉÂÊ %
-    fitnessRate: 0 // ½¡Éí¸²¸Ç %
+    days: [],      // ï¿½ï¿½ï¿½ï¿½ 7 ï¿½ï¿½
+    rate: 0,       // Ñ§Ï°ï¿½ï¿½ï¿½ï¿½ï¿½ %
+    fitnessRate: 0 // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ %
   },
 
   onShow() {
@@ -15,7 +15,7 @@ Page({
   },
 
   async loadData() {
-    wx.showLoading({ title: '¼ÓÔØÖÐ' })
+    wx.showLoading({ title: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½' })
     try {
       const start = util.getWeekStart(new Date())
       const startStr = util.formatDate(start)
@@ -28,7 +28,7 @@ Page({
         store.getFitnessRange(startStr, endStr)
       ])
 
-      // °´ÈÕÆÚ¹éÀàÑ§Ï°´ò¿¨
+      // ï¿½ï¿½ï¿½ï¿½ï¿½Ú¹ï¿½ï¿½ï¿½Ñ§Ï°ï¿½ï¿½
       const map = {}
       checkins.forEach(c => {
         if (!map[c.date]) map[c.date] = {}
@@ -53,7 +53,7 @@ Page({
         doneStudy += dayDone
         if (fitSet.has(ds)) fitDays++
         days.push({
-          label: 'ÖÜ' + util.WEEK_NAMES[d.getDay()],
+          label: 'ï¿½ï¿½' + util.WEEK_NAMES[d.getDay()],
           date: ds,
           embed, ai, exam,
           dayRate: Math.round(dayDone / 3 * 100)
@@ -70,7 +70,7 @@ Page({
       })
     } catch (e) {
       console.error(e)
-      wx.showToast({ title: '¼ÓÔØÊ§°Ü', icon: 'none' })
+      wx.showToast({ title: 'ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½', icon: 'none' })
     } finally {
       wx.hideLoading()
     }

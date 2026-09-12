@@ -1,13 +1,13 @@
-// pages/month/month.js ÔÂÊÓÍ¼
+// pages/month/month.js ï¿½ï¿½ï¿½ï¿½Í¼
 const util = require('../../utils/util.js')
 const store = require('../../utils/store.js')
 
 Page({
   data: {
     monthText: '',
-    cells: [],   // ÈÕÀúÍø¸ñ£¨º¬Ç°ÖÃ¿Õ¸ñ£©
-    rate: 0,     // ±¾ÔÂ´ò¿¨¸²¸ÇÂÊ %
-    weekHead: ['ÈÕ', 'Ò»', '¶þ', 'Èý', 'ËÄ', 'Îå', 'Áù']
+    cells: [],   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ñ£¨ºï¿½Ç°ï¿½Ã¿Õ¸ï¿½
+    rate: 0,     // ï¿½ï¿½ï¿½Â´ò¿¨¸ï¿½ï¿½ï¿½ï¿½ï¿½ %
+    weekHead: ['ï¿½ï¿½', 'Ò»', 'ï¿½ï¿½', 'ï¿½ï¿½', 'ï¿½ï¿½', 'ï¿½ï¿½', 'ï¿½ï¿½']
   },
 
   onShow() {
@@ -15,7 +15,7 @@ Page({
   },
 
   async loadData() {
-    wx.showLoading({ title: '¼ÓÔØÖÐ' })
+    wx.showLoading({ title: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½' })
     try {
       const now = new Date()
       const year = now.getFullYear()
@@ -27,7 +27,7 @@ Page({
 
       const checkins = await store.getCheckinsRange(startStr, endStr)
 
-      // ÒÑ´ò¿¨ÈÕÆÚ¼¯ºÏ£¨ÈÎÒâ°å¿éÍê³É¼´Ëãµ±Ìì´ò¿¨£©
+      // ï¿½Ñ´ï¿½ï¿½ï¿½ï¿½Ú¼ï¿½ï¿½Ï£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¼ï¿½ï¿½ãµ±ï¿½ï¿½ò¿¨£ï¿½
       const doneSet = new Set()
       const totalByDate = {}
       checkins.forEach(c => {
@@ -39,7 +39,7 @@ Page({
         }
       })
 
-      // ÈÕÀúÍø¸ñ£ºÖÜÈÕÎªÃ¿ÖÜÆðµã
+      // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÎªÃ¿ï¿½ï¿½ï¿½ï¿½ï¿½
       const firstDay = first.getDay()
       const daysInMonth = last.getDate()
       const cells = []
@@ -56,13 +56,13 @@ Page({
 
       const rate = daysInMonth ? Math.round(doneDays / daysInMonth * 100) : 0
       this.setData({
-        monthText: year + 'Äê' + (month + 1) + 'ÔÂ',
+        monthText: year + 'ï¿½ï¿½' + (month + 1) + 'ï¿½ï¿½',
         cells,
         rate
       })
     } catch (e) {
       console.error(e)
-      wx.showToast({ title: '¼ÓÔØÊ§°Ü', icon: 'none' })
+      wx.showToast({ title: 'ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½', icon: 'none' })
     } finally {
       wx.hideLoading()
     }

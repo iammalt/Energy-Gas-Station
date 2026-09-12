@@ -1,16 +1,16 @@
-// pages/wrongbook/wrongbook.js ´íÌâ±¾
+// pages/wrongbook/wrongbook.js ï¿½ï¿½ï¿½â±¾
 const store = require('../../utils/store.js')
 
-// ·ÖÀàÉ¸Ñ¡
+// ï¿½ï¿½ï¿½ï¿½É¸Ñ¡
 const FILTERS = [
-  { key: 'ALL', label: 'È«²¿' },
-  { key: 'EW', label: 'EW Ç¶ÈëÊ½' },
+  { key: 'ALL', label: 'È«ï¿½ï¿½' },
+  { key: 'EW', label: 'EW Ç¶ï¿½ï¿½Ê½' },
   { key: 'AI', label: 'AI' },
-  { key: 'SE', label: 'SE Èí¿¼' }
+  { key: 'SE', label: 'SE ï¿½ï¿½ï¿½ï¿½' }
 ]
 
-// ·ÖÀàÖÐÎÄÃû
-const PREFIX_NAME = { EW: 'Ç¶ÈëÊ½', AI: 'AI', SE: 'Èí¿¼' }
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+const PREFIX_NAME = { EW: 'Ç¶ï¿½ï¿½Ê½', AI: 'AI', SE: 'ï¿½ï¿½ï¿½ï¿½' }
 
 Page({
   data: {
@@ -18,9 +18,9 @@ Page({
     activeFilter: 'ALL',
     list: [],
 
-    // ±à¼­µ¯²ã
+    // ï¿½à¼­ï¿½ï¿½ï¿½ï¿½
     showEditor: false,
-    editing: null, // µ±Ç°±à¼­µÄ _id£¬null ±íÊ¾ÐÂÔö
+    editing: null, // ï¿½ï¿½Ç°ï¿½à¼­ï¿½ï¿½ _idï¿½ï¿½null ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½
     prefixOptions: ['EW', 'AI', 'SE'],
     prefixIndex: 0,
     form: { prefix: 'EW', question: '', myAnswer: '', wrongReason: '' }
@@ -31,14 +31,14 @@ Page({
   },
 
   async loadList() {
-    wx.showLoading({ title: '¼ÓÔØÖÐ' })
+    wx.showLoading({ title: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½' })
     try {
       const list = await store.getWrongs(this.data.activeFilter)
-      // ¸½¼Ó·ÖÀàÖÐÎÄÃû£¬±ãÓÚÕ¹Ê¾
+      // ï¿½ï¿½ï¿½Ó·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¹Ê¾
       list.forEach(it => { it.prefixName = PREFIX_NAME[it.prefix] || it.prefix })
       this.setData({ list })
     } catch (e) {
-      wx.showToast({ title: '¼ÓÔØÊ§°Ü', icon: 'none' })
+      wx.showToast({ title: 'ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½', icon: 'none' })
     } finally {
       wx.hideLoading()
     }
@@ -91,10 +91,10 @@ Page({
   async saveWrong() {
     const f = this.data.form
     if (!f.question.trim()) {
-      wx.showToast({ title: 'ÇëÌîÐ´ÌâÄ¿', icon: 'none' })
+      wx.showToast({ title: 'ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½Ä¿', icon: 'none' })
       return
     }
-    wx.showLoading({ title: '±£´æÖÐ' })
+    wx.showLoading({ title: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½' })
     try {
       if (this.data.editing) {
         await store.updateWrong(this.data.editing, {
@@ -111,28 +111,28 @@ Page({
           wrongReason: f.wrongReason
         })
       }
-      wx.showToast({ title: 'ÒÑ±£´æ', icon: 'success' })
+      wx.showToast({ title: 'ï¿½Ñ±ï¿½ï¿½ï¿½', icon: 'success' })
       this.setData({ showEditor: false })
       this.loadList()
     } catch (e) {
       wx.hideLoading()
-      wx.showToast({ title: '±£´æÊ§°Ü', icon: 'none' })
+      wx.showToast({ title: 'ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½', icon: 'none' })
     }
   },
 
   deleteWrong(e) {
     const id = e.currentTarget.dataset.id
     wx.showModal({
-      title: 'É¾³ý',
-      content: 'È·¶¨É¾³ýÕâµÀÌâ£¿',
+      title: 'É¾ï¿½ï¿½',
+      content: 'È·ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½â£¿',
       success: async (res) => {
         if (!res.confirm) return
         try {
           await store.deleteWrong(id)
-          wx.showToast({ title: 'ÒÑÉ¾³ý', icon: 'none' })
+          wx.showToast({ title: 'ï¿½ï¿½É¾ï¿½ï¿½', icon: 'none' })
           this.loadList()
         } catch (err) {
-          wx.showToast({ title: 'É¾³ýÊ§°Ü', icon: 'none' })
+          wx.showToast({ title: 'É¾ï¿½ï¿½Ê§ï¿½ï¿½', icon: 'none' })
         }
       }
     })

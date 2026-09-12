@@ -48,7 +48,7 @@
   font-size: 30rpx;
 }
 
-/* µ¯²ã±íµ¥ */
+/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 .sheet-title { font-size: 32rpx; font-weight: 700; margin-bottom: 16rpx; }
 .field {
   display: flex;

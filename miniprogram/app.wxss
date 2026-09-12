@@ -1,4 +1,4 @@
-/* app.wxss È«¾ÖÑùÊ½ */
+/* app.wxss È«ï¿½ï¿½ï¿½ï¿½Ê½ */
 page {
   background: #f2f3f5;
   font-family: -apple-system, "PingFang SC", "Helvetica Neue", Helvetica, sans-serif;
@@ -23,7 +23,7 @@ page {
 
 .muted { color: #999; }
 
-/* Í¨ÓÃ°´Å¥ */
+/* Í¨ï¿½Ã°ï¿½Å¥ */
 .btn-primary {
   background: #07C160;
   color: #fff;
@@ -33,7 +33,7 @@ page {
   color: #fff;
 }
 
-/* µ×²¿µ¯³ö²ã */
+/* ï¿½×²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 .mask {
   position: fixed;
   left: 0; top: 0; right: 0; bottom: 0;

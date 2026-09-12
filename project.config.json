@@ -1,9 +1,9 @@
 {
   "miniprogramRoot": "miniprogram/",
   "cloudfunctionRoot": "cloudfunctions/",
-  "appid": "wxYOUR_APPID_HERE",
+  "appid": "wx2459ecf619d7d557",
   "projectname": "Energy-Gas-Station",
-  "description": "¸öÈË¼Æ»®´ò¿¨Î¢ÐÅÐ¡³ÌÐò£¨Ñ§Ï°+½¡Éí+´íÌâ±¾£¬ÔÆ¿ª·¢¶à¶ËÍ¬²½£©",
+  "description": "ï¿½ï¿½ï¿½Ë¼Æ»ï¿½ï¿½ï¿½Î¢ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½Ñ§Ï°+ï¿½ï¿½ï¿½ï¿½+ï¿½ï¿½ï¿½â±¾ï¿½ï¿½ï¿½Æ¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½ï¿½ï¿½",
   "setting": {
     "urlCheck": false,
     "es6": true,
@@ -12,9 +12,30 @@
     "minified": true,
     "newFeature": true,
     "nodeModules": false,
-    "packNpmManually": false
+    "packNpmManually": false,
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
   },
   "compileType": "miniprogram",
   "libVersion": "3.0.0",
-  "condition": {}
+  "condition": {},
+  "simulatorPluginLibVersion": {},
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "editorSetting": {}
 }

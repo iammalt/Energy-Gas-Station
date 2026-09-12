@@ -1,7 +1,7 @@
 {
   "name": "getOpenId",
   "version": "1.0.0",
-  "description": "获取用户 openid",
+  "description": "锟斤拷取锟矫伙拷 openid",
   "main": "index.js",
   "dependencies": {
     "wx-server-sdk": "~2.6.3"
