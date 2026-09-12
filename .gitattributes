@@ -1,0 +1,16 @@
+# 微信小程序项目强制使用 LF 换行，避免 Windows core.autocrlf 把文件转 CRLF
+# 导致微信开发者工具报“不是 UTF-8 格式”等解析错误
+*.js text eol=lf
+*.ts text eol=lf
+*.json text eol=lf
+*.wxml text eol=lf
+*.wxss text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.toml text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.sh text eol=lf
+
+# 云函数中的 node 文件同样 LF
+cloudfunctions/**/index.js text eol=lf
