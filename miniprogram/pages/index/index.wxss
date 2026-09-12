@@ -48,7 +48,7 @@
   font-size: 30rpx;
 }
 
-/* ������� */
+/* 弹层表单 */
 .sheet-title { font-size: 32rpx; font-weight: 700; margin-bottom: 16rpx; }
 .field {
   display: flex;

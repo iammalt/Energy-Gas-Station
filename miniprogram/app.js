@@ -1,27 +1,27 @@
-// app.js С������ڣ���ʼ��΢���ƿ�������
+// app.js 小程序入口，初始化微信云开发能力
 App({
   globalData: {
-    // �7�2�1�5 �뽫�����滻Ϊ���Լ����ƿ������� ID
-    // ��ȡλ�ã�΢�ſ����߹��� -> �ƿ��� -> ���� -> ���� ID
+    // ???? 请将下面替换为你自己的云开发环境 ID
+    // 获取位置：微信开发者工具 -> 云开发 -> 设置 -> 环境 ID
     envId: 'your-env-id',
     openid: ''
   },
 
   onLaunch() {
     if (!wx.cloud) {
-      console.error('��ǰ������汾���ͣ��޷�ʹ������������ʹ�� 2.2.3 �����ϰ汾')
+      console.error('当前基础库版本过低，无法使用云能力，请使用 2.2.3 或以上版本')
       return
     }
     wx.cloud.init({
-      // �� envId ����ռλ������ʹ��Ĭ�ϻ���
+      // 若 envId 仍是占位符，则使用默认环境
       env: this.globalData.envId === 'your-env-id' ? undefined : this.globalData.envId,
       traceUser: true
     })
-    // ��ǰ��ȡ openid������ҳ�������ݸ���ʹ��
+    // 提前拉取 openid，供各页面多端数据隔离使用
     this.ensureOpenid()
   },
 
-  // ��ȡ��ǰ�û� openid�����ͬ�˺����ݸ��롢ͬ���Ĺؼ���
+  // 获取当前用户 openid（多端同账号数据隔离、同步的关键）
   ensureOpenid() {
     if (this.globalData.openid) return Promise.resolve(this.globalData.openid)
     if (this._openidPromise) return this._openidPromise
@@ -32,8 +32,8 @@ App({
         return openid
       })
       .catch(err => {
-        console.error('��ȡ openid ʧ��', err)
-        this._openidPromise = null // ʧ���������´�����
+        console.error('获取 openid 失败', err)
+        this._openidPromise = null // 失败则允许下次重试
         return Promise.reject(err)
       })
     return this._openidPromise

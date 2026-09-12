@@ -1,16 +1,16 @@
-// pages/wrongbook/wrongbook.js ���Ȿ
+// pages/wrongbook/wrongbook.js 错题本
 const store = require('../../utils/store.js')
 
-// ����ɸѡ
+// 分类筛选
 const FILTERS = [
-  { key: 'ALL', label: 'ȫ��' },
-  { key: 'EW', label: 'EW Ƕ��ʽ' },
+  { key: 'ALL', label: '全部' },
+  { key: 'EW', label: 'EW 嵌入式' },
   { key: 'AI', label: 'AI' },
-  { key: 'SE', label: 'SE ����' }
+  { key: 'SE', label: 'SE 软考' }
 ]
 
-// ����������
-const PREFIX_NAME = { EW: 'Ƕ��ʽ', AI: 'AI', SE: '����' }
+// 分类中文名
+const PREFIX_NAME = { EW: '嵌入式', AI: 'AI', SE: '软考' }
 
 Page({
   data: {
@@ -18,9 +18,9 @@ Page({
     activeFilter: 'ALL',
     list: [],
 
-    // �༭����
+    // 编辑弹层
     showEditor: false,
-    editing: null, // ��ǰ�༭�� _id��null ��ʾ����
+    editing: null, // 当前编辑的 _id，null 表示新增
     prefixOptions: ['EW', 'AI', 'SE'],
     prefixIndex: 0,
     form: { prefix: 'EW', question: '', myAnswer: '', wrongReason: '' }
@@ -31,14 +31,14 @@ Page({
   },
 
   async loadList() {
-    wx.showLoading({ title: '������' })
+    wx.showLoading({ title: '加载中' })
     try {
       const list = await store.getWrongs(this.data.activeFilter)
-      // ���ӷ���������������չʾ
+      // 附加分类中文名，便于展示
       list.forEach(it => { it.prefixName = PREFIX_NAME[it.prefix] || it.prefix })
       this.setData({ list })
     } catch (e) {
-      wx.showToast({ title: '����ʧ��', icon: 'none' })
+      wx.showToast({ title: '加载失败', icon: 'none' })
     } finally {
       wx.hideLoading()
     }
@@ -91,10 +91,10 @@ Page({
   async saveWrong() {
     const f = this.data.form
     if (!f.question.trim()) {
-      wx.showToast({ title: '����д��Ŀ', icon: 'none' })
+      wx.showToast({ title: '请填写题目', icon: 'none' })
       return
     }
-    wx.showLoading({ title: '������' })
+    wx.showLoading({ title: '保存中' })
     try {
       if (this.data.editing) {
         await store.updateWrong(this.data.editing, {
@@ -111,28 +111,28 @@ Page({
           wrongReason: f.wrongReason
         })
       }
-      wx.showToast({ title: '�ѱ���', icon: 'success' })
+      wx.showToast({ title: '已保存', icon: 'success' })
       this.setData({ showEditor: false })
       this.loadList()
     } catch (e) {
       wx.hideLoading()
-      wx.showToast({ title: '����ʧ��', icon: 'none' })
+      wx.showToast({ title: '保存失败', icon: 'none' })
     }
   },
 
   deleteWrong(e) {
     const id = e.currentTarget.dataset.id
     wx.showModal({
-      title: 'ɾ��',
-      content: 'ȷ��ɾ������⣿',
+      title: '删除',
+      content: '确定删除这道题？',
       success: async (res) => {
         if (!res.confirm) return
         try {
           await store.deleteWrong(id)
-          wx.showToast({ title: '��ɾ��', icon: 'none' })
+          wx.showToast({ title: '已删除', icon: 'none' })
           this.loadList()
         } catch (err) {
-          wx.showToast({ title: 'ɾ��ʧ��', icon: 'none' })
+          wx.showToast({ title: '删除失败', icon: 'none' })
         }
       }
     })

@@ -1,13 +1,13 @@
-// pages/week/week.js ����ͼ
+// pages/week/week.js 周视图
 const util = require('../../utils/util.js')
 const store = require('../../utils/store.js')
 
 Page({
   data: {
     weekRangeText: '',
-    days: [],      // ���� 7 ��
-    rate: 0,       // ѧϰ����� %
-    fitnessRate: 0 // �������� %
+    days: [],      // 本周 7 天
+    rate: 0,       // 学习完成率 %
+    fitnessRate: 0 // 健身覆盖 %
   },
 
   onShow() {
@@ -15,7 +15,7 @@ Page({
   },
 
   async loadData() {
-    wx.showLoading({ title: '������' })
+    wx.showLoading({ title: '加载中' })
     try {
       const start = util.getWeekStart(new Date())
       const startStr = util.formatDate(start)
@@ -28,7 +28,7 @@ Page({
         store.getFitnessRange(startStr, endStr)
       ])
 
-      // �����ڹ���ѧϰ��
+      // 按日期归类学习打卡
       const map = {}
       checkins.forEach(c => {
         if (!map[c.date]) map[c.date] = {}
@@ -53,7 +53,7 @@ Page({
         doneStudy += dayDone
         if (fitSet.has(ds)) fitDays++
         days.push({
-          label: '��' + util.WEEK_NAMES[d.getDay()],
+          label: '周' + util.WEEK_NAMES[d.getDay()],
           date: ds,
           embed, ai, exam,
           dayRate: Math.round(dayDone / 3 * 100)
@@ -70,7 +70,7 @@ Page({
       })
     } catch (e) {
       console.error(e)
-      wx.showToast({ title: '����ʧ��', icon: 'none' })
+      wx.showToast({ title: '加载失败', icon: 'none' })
     } finally {
       wx.hideLoading()
     }

@@ -9,7 +9,7 @@
   "window": {
     "backgroundTextStyle": "dark",
     "navigationBarBackgroundColor": "#07C160",
-    "navigationBarTitleText": "�ƻ���",
+    "navigationBarTitleText": "计划打卡",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#f2f3f5"
   },
@@ -19,10 +19,10 @@
     "backgroundColor": "#ffffff",
     "borderStyle": "black",
     "list": [
-      { "pagePath": "pages/index/index", "text": "����" },
-      { "pagePath": "pages/week/week", "text": "����ͼ" },
-      { "pagePath": "pages/month/month", "text": "����ͼ" },
-      { "pagePath": "pages/wrongbook/wrongbook", "text": "���Ȿ" }
+      { "pagePath": "pages/index/index", "text": "今日" },
+      { "pagePath": "pages/week/week", "text": "周视图" },
+      { "pagePath": "pages/month/month", "text": "月视图" },
+      { "pagePath": "pages/wrongbook/wrongbook", "text": "错题本" }
     ]
   },
   "style": "v2",

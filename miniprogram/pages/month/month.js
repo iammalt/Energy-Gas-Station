@@ -1,13 +1,13 @@
-// pages/month/month.js ����ͼ
+// pages/month/month.js 月视图
 const util = require('../../utils/util.js')
 const store = require('../../utils/store.js')
 
 Page({
   data: {
     monthText: '',
-    cells: [],   // �������񣨺�ǰ�ÿո�
-    rate: 0,     // ���´򿨸����� %
-    weekHead: ['��', 'һ', '��', '��', '��', '��', '��']
+    cells: [],   // 日历网格（含前置空格）
+    rate: 0,     // 本月打卡覆盖率 %
+    weekHead: ['日', '一', '二', '三', '四', '五', '六']
   },
 
   onShow() {
@@ -15,7 +15,7 @@ Page({
   },
 
   async loadData() {
-    wx.showLoading({ title: '������' })
+    wx.showLoading({ title: '加载中' })
     try {
       const now = new Date()
       const year = now.getFullYear()
@@ -27,7 +27,7 @@ Page({
 
       const checkins = await store.getCheckinsRange(startStr, endStr)
 
-      // �Ѵ����ڼ��ϣ���������ɼ��㵱��򿨣�
+      // 已打卡日期集合（任意板块完成即算当天打卡）
       const doneSet = new Set()
       const totalByDate = {}
       checkins.forEach(c => {
@@ -39,7 +39,7 @@ Page({
         }
       })
 
-      // ������������Ϊÿ�����
+      // 日历网格：周日为每周起点
       const firstDay = first.getDay()
       const daysInMonth = last.getDate()
       const cells = []
@@ -56,13 +56,13 @@ Page({
 
       const rate = daysInMonth ? Math.round(doneDays / daysInMonth * 100) : 0
       this.setData({
-        monthText: year + '��' + (month + 1) + '��',
+        monthText: year + '年' + (month + 1) + '月',
         cells,
         rate
       })
     } catch (e) {
       console.error(e)
-      wx.showToast({ title: '����ʧ��', icon: 'none' })
+      wx.showToast({ title: '加载失败', icon: 'none' })
     } finally {
       wx.hideLoading()
     }

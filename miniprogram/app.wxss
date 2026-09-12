@@ -1,4 +1,4 @@
-/* app.wxss ȫ����ʽ */
+/* app.wxss 全局样式 */
 page {
   background: #f2f3f5;
   font-family: -apple-system, "PingFang SC", "Helvetica Neue", Helvetica, sans-serif;
@@ -23,7 +23,7 @@ page {
 
 .muted { color: #999; }
 
-/* ͨ�ð�ť */
+/* 通用按钮 */
 .btn-primary {
   background: #07C160;
   color: #fff;
@@ -33,7 +33,7 @@ page {
   color: #fff;
 }
 
-/* �ײ������� */
+/* 底部弹出层 */
 .mask {
   position: fixed;
   left: 0; top: 0; right: 0; bottom: 0;

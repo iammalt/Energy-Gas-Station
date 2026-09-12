@@ -1,8 +1,8 @@
-<!-- pages/month/month.wxml ����ͼ -->
+<!-- pages/month/month.wxml 月视图 -->
 <view class="page">
   <view class="card">
     <view class="m-title">{{monthText}}</view>
-    <view class="m-rate">���´򿨸����� {{rate}}%</view>
+    <view class="m-rate">本月打卡覆盖率 {{rate}}%</view>
     <view class="m-bar-bg"><view class="m-bar" style="width:{{rate}}%"></view></view>
   </view>
 

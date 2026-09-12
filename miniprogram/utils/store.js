@@ -1,15 +1,15 @@
-// utils/store.js �����ݿ��д��װ
-// ���в�ѯ���� openid ���ˣ���֤���ͬ�˺����ݸ�����ͬ��
+// utils/store.js 云数据库读写封装
+// 所有查询均按 openid 过滤，保证多端同账号数据隔离与同步
 const db = wx.cloud.database()
 const _ = db.command
 
-// ȷ�� openid ���������� app.js ���ƺ������ý����
+// 确保 openid 就绪（来自 app.js 的云函数调用结果）
 function openid() {
   return getApp().ensureOpenid()
 }
 
-// ===== ѧϰ�� checkins =====
-// �򿨻���£�ͬһ��ͬһ���Ψһ��
+// ===== 学习打卡 checkins =====
+// 打卡或更新（同一天同一板块唯一）
 async function upsertCheckin({ date, section, done, duration, note }) {
   const oid = await openid()
   const res = await db.collection('checkins')
@@ -25,12 +25,12 @@ async function upsertCheckin({ date, section, done, duration, note }) {
   })
 }
 
-// ȡ���򿨣�ɾ������ð���¼��
+// 取消打卡（删除当天该板块记录）
 async function deleteCheckin(id) {
   return db.collection('checkins').doc(id).remove()
 }
 
-// ��ѯĳ���ڷ�Χ�ڵ�ѧϰ��
+// 查询某日期范围内的学习打卡
 async function getCheckinsRange(start, end) {
   const oid = await openid()
   const res = await db.collection('checkins')
@@ -40,7 +40,7 @@ async function getCheckinsRange(start, end) {
   return res.data
 }
 
-// ===== �ճ����� fitness =====
+// ===== 日常健身 fitness =====
 async function addFitness({ date, type, duration, distance, weight, pain, note }) {
   const oid = await openid()
   return db.collection('fitness').add({
@@ -61,7 +61,7 @@ async function deleteFitness(id) {
   return db.collection('fitness').doc(id).remove()
 }
 
-// ===== ���Ȿ wrongbooks =====
+// ===== 错题本 wrongbooks =====
 async function addWrong({ prefix, question, myAnswer, wrongReason }) {
   const oid = await openid()
   return db.collection('wrongbooks').add({
@@ -77,7 +77,7 @@ async function deleteWrong(id) {
   return db.collection('wrongbooks').doc(id).remove()
 }
 
-// �г����⣻prefix Ϊ 'ALL' ʱ�����˷���
+// 列出错题；prefix 为 'ALL' 时不过滤分类
 async function getWrongs(prefix) {
   const oid = await openid()
   const where = { _openid: oid }

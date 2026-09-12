@@ -1,4 +1,4 @@
-// pages/stats/stats.js ͳ��
+// pages/stats/stats.js 统计
 const util = require('../../utils/util.js')
 const store = require('../../utils/store.js')
 
@@ -7,7 +7,7 @@ Page({
     streak: 0,
     week: { embed: 0, ai: 0, exam: 0 },
     month: { embed: 0, ai: 0, exam: 0 },
-    trend: [] // ��� 4 �������
+    trend: [] // 最近 4 周完成率
   },
 
   onShow() {
@@ -15,31 +15,31 @@ Page({
   },
 
   async loadData() {
-    wx.showLoading({ title: '������' })
+    wx.showLoading({ title: '加载中' })
     try {
       const now = new Date()
 
-      // ����������ȡ�� 400 ������ѧϰ��
+      // 连续天数：取近 400 天所有学习打卡
       const allStart = util.formatDate(new Date(now.getTime() - 400 * 86400000))
       const all = await store.getCheckinsRange(allStart, util.formatDate(now))
       const set = new Set()
       all.forEach(c => { if (c.done) set.add(c.date) })
       const streak = util.calcStreak(set)
 
-      // ����
+      // 本周
       const ws = util.getWeekStart(now)
       const we = new Date(ws)
       we.setDate(we.getDate() + 6)
       const weekCheck = await store.getCheckinsRange(util.formatDate(ws), util.formatDate(we))
       const week = this.calcSectionRate(weekCheck, 7)
 
-      // ����
+      // 本月
       const ms = new Date(now.getFullYear(), now.getMonth(), 1)
       const me = new Date(now.getFullYear(), now.getMonth() + 1, 0)
       const monthCheck = await store.getCheckinsRange(util.formatDate(ms), util.formatDate(me))
       const month = this.calcSectionRate(monthCheck, me.getDate())
 
-      // ���ƣ���� 4 ������ʣ�����¼�����㣩
+      // 趋势：最近 4 周完成率（按记录数计算）
       const trend = []
       for (let i = 3; i >= 0; i--) {
         const s = new Date(ws)
@@ -59,13 +59,13 @@ Page({
       this.setData({ streak, week, month, trend })
     } catch (e) {
       console.error(e)
-      wx.showToast({ title: '����ʧ��', icon: 'none' })
+      wx.showToast({ title: '加载失败', icon: 'none' })
     } finally {
       wx.hideLoading()
     }
   },
 
-  // ���������ʣ�Ӧ������ = days��
+  // 各板块完成率（应打卡天数 = days）
   calcSectionRate(list, days) {
     const m = { embed: 0, ai: 0, exam: 0 }
     list.forEach(c => { if (c.done) m[c.section] = m[c.section] + 1 })
