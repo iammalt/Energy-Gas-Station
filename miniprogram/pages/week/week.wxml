@@ -23,9 +23,9 @@
         <view>{{item.label}}</view>
         <view class="td-date">{{item.date}}</view>
       </view>
-      <view class="td">{{item.embed ? '??' : '—'}}</view>
-      <view class="td">{{item.ai ? '??' : '—'}}</view>
-      <view class="td">{{item.exam ? '??' : '—'}}</view>
+      <view class="td">{{item.embed ? '√' : '—'}}</view>
+      <view class="td">{{item.ai ? '√' : '—'}}</view>
+      <view class="td">{{item.exam ? '√' : '—'}}</view>
       <view class="td">{{item.dayRate}}%</view>
     </view>
   </view>

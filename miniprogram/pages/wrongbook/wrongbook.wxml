@@ -33,7 +33,7 @@
     <view class="field">
       <text class="field-label">分类</text>
       <picker class="field-picker" range="{{prefixOptions}}" value="{{prefixIndex}}" bindchange="onPrefixChange">
-        <view class="picker-text">{{form.prefix}} ??</view>
+        <view class="picker-text">{{form.prefix}} ▼</view>
       </picker>
     </view>
     <view class="field-col">

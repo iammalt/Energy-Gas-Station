@@ -1,7 +1,7 @@
 {
   "miniprogramRoot": "miniprogram/",
   "cloudfunctionRoot": "cloudfunctions/",
-  "appid": "wxYOUR_APPID_HERE",
+  "appid": "wx2459ecf619d7d557",
   "projectname": "Energy-Gas-Station",
   "description": "个人计划打卡微信小程序（学习+健身+错题本，云开发多端同步）",
   "setting": {

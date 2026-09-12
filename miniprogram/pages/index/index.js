@@ -4,9 +4,9 @@ const store = require('../../utils/store.js')
 
 // 三个固定学习板块
 const SECTIONS = [
-  { key: 'embed', name: '嵌入式工作流', emoji: '??' },
-  { key: 'ai', name: 'AI 学习', emoji: '??' },
-  { key: 'exam', name: '软考备考', emoji: '??' }
+  { key: 'embed', name: '嵌入式工作流', emoji: '嵌' },
+  { key: 'ai', name: 'AI 学习', emoji: 'AI' },
+  { key: 'exam', name: '软考备考', emoji: '考' }
 ]
 
 Page({
@@ -212,7 +212,9 @@ Page({
       this.loadData()
     } catch (err) {
       wx.hideLoading()
-      wx.showToast({ title: '保存失败', icon: 'none' })
+      console.error('保存健身失败:', err)
+      const msg = (err && (err.errMsg || err.message)) ? (err.errMsg || err.message) : '未知错误'
+      wx.showToast({ title: '保存失败: ' + msg, icon: 'none' })
     }
   },
 
