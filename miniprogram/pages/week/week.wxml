@@ -1,0 +1,32 @@
+<!-- pages/week/week.wxml 周视图 -->
+<view class="page">
+  <view class="card">
+    <view class="wk-range">{{weekRangeText}}</view>
+    <view class="wk-summary">
+      <view class="wk-num">{{rate}}%</view>
+      <view class="wk-label">学习完成率</view>
+    </view>
+    <view class="wk-progress"><view class="wk-bar" style="width:{{rate}}%"></view></view>
+    <view class="wk-fit">本周健身覆盖 {{fitnessRate}}%</view>
+  </view>
+
+  <view class="card table">
+    <view class="tr th">
+      <view class="td">日期</view>
+      <view class="td">嵌入式</view>
+      <view class="td">AI</view>
+      <view class="td">软考</view>
+      <view class="td">当天</view>
+    </view>
+    <view class="tr" wx:for="{{days}}" wx:key="date">
+      <view class="td">
+        <view>{{item.label}}</view>
+        <view class="td-date">{{item.date}}</view>
+      </view>
+      <view class="td">{{item.embed ? '✅' : '—'}}</view>
+      <view class="td">{{item.ai ? '✅' : '—'}}</view>
+      <view class="td">{{item.exam ? '✅' : '—'}}</view>
+      <view class="td">{{item.dayRate}}%</view>
+    </view>
+  </view>
+</view>
