@@ -1,0 +1,57 @@
+<!-- pages/wrongbook/wrongbook.wxml 错题本 -->
+<view class="page">
+  <!-- 分类筛选 -->
+  <view class="filters">
+    <view wx:for="{{filters}}" wx:key="key"
+          class="filter {{activeFilter === item.key ? 'active' : ''}}"
+          bindtap="onFilter" data-key="{{item.key}}">{{item.label}}</view>
+  </view>
+
+  <!-- 列表 -->
+  <view wx:if="{{list.length === 0}}" class="empty-tip">暂无错题，点击右上角 + 添加</view>
+  <view class="card item" wx:for="{{list}}" wx:key="_id">
+    <view class="item-top">
+      <text class="tag tag-{{item.prefix}}">{{item.prefixName}}</text>
+      <view class="item-ops">
+        <text class="op" bindtap="openEdit" data-id="{{item._id}}">编辑</text>
+        <text class="op op-del" bindtap="deleteWrong" data-id="{{item._id}}">删除</text>
+      </view>
+    </view>
+    <view class="q">Q：{{item.question}}</view>
+    <view class="a" wx:if="{{item.myAnswer}}">我的答案：{{item.myAnswer}}</view>
+    <view class="r" wx:if="{{item.wrongReason}}">错因：{{item.wrongReason}}</view>
+  </view>
+
+  <!-- 新增按钮 -->
+  <view class="add-btn" bindtap="openAdd">＋ 添加错题</view>
+
+  <!-- 编辑弹层 -->
+  <view class="mask" wx:if="{{showEditor}}" bindtap="closeEditor"></view>
+  <view class="sheet" wx:if="{{showEditor}}">
+    <view class="sheet-title">{{editing ? '编辑错题' : '新增错题'}}</view>
+
+    <view class="field">
+      <text class="field-label">分类</text>
+      <picker class="field-picker" range="{{prefixOptions}}" value="{{prefixIndex}}" bindchange="onPrefixChange">
+        <view class="picker-text">{{form.prefix}} ▼</view>
+      </picker>
+    </view>
+    <view class="field-col">
+      <text class="field-label">题目</text>
+      <textarea class="field-area" placeholder="输入题目" value="{{form.question}}" data-field="question" bindinput="onFormInput"/>
+    </view>
+    <view class="field-col">
+      <text class="field-label">我的答案</text>
+      <textarea class="field-area" placeholder="可选" value="{{form.myAnswer}}" data-field="myAnswer" bindinput="onFormInput"/>
+    </view>
+    <view class="field-col">
+      <text class="field-label">错因</text>
+      <textarea class="field-area" placeholder="可选" value="{{form.wrongReason}}" data-field="wrongReason" bindinput="onFormInput"/>
+    </view>
+
+    <view class="sheet-btns">
+      <button class="btn-cancel" bindtap="closeEditor">取消</button>
+      <button class="btn-save" bindtap="saveWrong">保存</button>
+    </view>
+  </view>
+</view>

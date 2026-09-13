@@ -1,0 +1,100 @@
+<!-- pages/index/index.wxml 今日打卡 -->
+<view class="page">
+  <!-- 顶部日期 -->
+  <view class="header">
+    <view class="h-date">{{todayDate}}</view>
+    <view class="h-week">{{weekdayText}}</view>
+  </view>
+
+  <!-- 概览 -->
+  <view class="overview card">
+    <view class="ov-item">
+      <view class="ov-num">{{doneCount}}<text class="ov-unit">/3</text></view>
+      <view class="ov-label">今日学习</view>
+    </view>
+    <view class="ov-divider"></view>
+    <view class="ov-item">
+      <view class="ov-num">{{streak}}</view>
+      <view class="ov-label">连续天数</view>
+    </view>
+    <view class="ov-stats" bindtap="goStats">统计</view>
+  </view>
+
+  <!-- 学习板块 -->
+  <view class="sec-title">学习打卡</view>
+  <view class="card study {{item.done ? 'study-done' : ''}}"
+        wx:for="{{sections}}" wx:key="key"
+        bindtap="onStudyTap" data-key="{{item.key}}">
+    <view class="study-emoji">{{item.emoji}}</view>
+    <view class="study-mid">
+      <view class="study-name">{{item.name}}</view>
+      <view class="study-sub" wx:if="{{item.done}}">已打卡 · 用时 {{item.duration}} 分</view>
+      <view class="study-sub muted" wx:else>未完成，点击打卡</view>
+    </view>
+    <view class="study-flag">{{item.done ? '√' : '○'}}</view>
+  </view>
+
+  <!-- 日常健身 -->
+  <view class="sec-title">日常健身</view>
+  <view class="card fitness" bindtap="openFitness">
+    <block wx:if="{{todayFitness}}">
+      <view class="fit-type">{{todayFitness.typeText}}</view>
+      <view class="fit-sub">时长 {{todayFitness.duration}} 分
+        <text wx:if="{{todayFitness.distance}}"> · {{todayFitness.distance}} km</text>
+        <text wx:if="{{todayFitness.weight}}"> · {{todayFitness.weight}} kg</text>
+      </view>
+    </block>
+    <view class="fit-empty" wx:else>点击记录今日健身 →</view>
+  </view>
+
+  <!-- 底部快捷入口 -->
+  <view class="quick" bindtap="goWrongbook">＋ 加错题</view>
+
+  <!-- 健身记录弹层 -->
+  <view class="mask" wx:if="{{showFitness}}" bindtap="closeFitness"></view>
+  <view class="sheet" wx:if="{{showFitness}}">
+    <view class="sheet-title">记录健身</view>
+
+    <view class="field">
+      <text class="field-label">类型</text>
+      <picker class="field-picker" range="{{typeOptions}}" value="{{typeIndex}}" bindchange="onTypeChange">
+        <view class="picker-text">{{fitnessForm.typeText}} ▼</view>
+      </picker>
+    </view>
+
+    <view class="field">
+      <text class="field-label">时长(分)</text>
+      <input class="field-input" type="number" placeholder="30-40" value="{{fitnessForm.duration}}" data-field="duration" bindinput="onFitnessInput"/>
+    </view>
+
+    <view class="field" wx:if="{{fitnessForm.type === 'run'}}">
+      <text class="field-label">距离(km)</text>
+      <input class="field-input" type="digit" placeholder="如 6.0" value="{{fitnessForm.distance}}" data-field="distance" bindinput="onFitnessInput"/>
+    </view>
+
+    <view class="field">
+      <text class="field-label">体重(kg)</text>
+      <input class="field-input" type="digit" placeholder="可选" value="{{fitnessForm.weight}}" data-field="weight" bindinput="onFitnessInput"/>
+    </view>
+
+    <view class="field">
+      <text class="field-label">膝盖疼痛(0-10)</text>
+      <input class="field-input" type="number" placeholder="0" value="{{fitnessForm.knee}}" data-field="knee" bindinput="onFitnessInput"/>
+    </view>
+
+    <view class="field">
+      <text class="field-label">腘窝疼痛(0-10)</text>
+      <input class="field-input" type="number" placeholder="0" value="{{fitnessForm.popliteal}}" data-field="popliteal" bindinput="onFitnessInput"/>
+    </view>
+
+    <view class="field">
+      <text class="field-label">备注</text>
+      <input class="field-input" placeholder="可选" value="{{fitnessForm.note}}" data-field="note" bindinput="onFitnessInput"/>
+    </view>
+
+    <view class="sheet-btns">
+      <button class="btn-cancel" bindtap="closeFitness">取消</button>
+      <button class="btn-save" bindtap="saveFitness">保存</button>
+    </view>
+  </view>
+</view>

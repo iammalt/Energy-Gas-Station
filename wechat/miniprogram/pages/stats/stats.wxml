@@ -1,0 +1,54 @@
+<!-- pages/stats/stats.wxml 统计 -->
+<view class="page">
+  <view class="card streak-card">
+    <view class="streak-num">{{streak}}</view>
+    <view class="streak-label">连续打卡天数</view>
+  </view>
+
+  <view class="sec-title">本周各板块完成率</view>
+  <view class="card">
+    <view class="bar-row">
+      <text class="bar-name">嵌入式</text>
+      <view class="bar-bg"><view class="bar-fill" style="width:{{week.embed}}%"></view></view>
+      <text class="bar-pct">{{week.embed}}%</text>
+    </view>
+    <view class="bar-row">
+      <text class="bar-name">AI</text>
+      <view class="bar-bg"><view class="bar-fill" style="width:{{week.ai}}%"></view></view>
+      <text class="bar-pct">{{week.ai}}%</text>
+    </view>
+    <view class="bar-row">
+      <text class="bar-name">软考</text>
+      <view class="bar-bg"><view class="bar-fill" style="width:{{week.exam}}%"></view></view>
+      <text class="bar-pct">{{week.exam}}%</text>
+    </view>
+  </view>
+
+  <view class="sec-title">本月各板块完成率</view>
+  <view class="card">
+    <view class="bar-row">
+      <text class="bar-name">嵌入式</text>
+      <view class="bar-bg"><view class="bar-fill" style="width:{{month.embed}}%"></view></view>
+      <text class="bar-pct">{{month.embed}}%</text>
+    </view>
+    <view class="bar-row">
+      <text class="bar-name">AI</text>
+      <view class="bar-bg"><view class="bar-fill" style="width:{{month.ai}}%"></view></view>
+      <text class="bar-pct">{{month.ai}}%</text>
+    </view>
+    <view class="bar-row">
+      <text class="bar-name">软考</text>
+      <view class="bar-bg"><view class="bar-fill" style="width:{{month.exam}}%"></view></view>
+      <text class="bar-pct">{{month.exam}}%</text>
+    </view>
+  </view>
+
+  <view class="sec-title">近 4 周趋势</view>
+  <view class="card trend">
+    <view class="trend-row" wx:for="{{trend}}" wx:key="label">
+      <text class="trend-label">{{item.label}}</text>
+      <view class="trend-bg"><view class="trend-fill" style="width:{{item.rate}}%"></view></view>
+      <text class="trend-pct">{{item.rate}}%</text>
+    </view>
+  </view>
+</view>
