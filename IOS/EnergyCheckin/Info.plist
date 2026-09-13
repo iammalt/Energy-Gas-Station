@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+    <!-- 微信登录回调 URL Scheme：把 wxYOUR_WECHAT_APPID 改为 "wx" + 你的移动应用 AppID -->
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>wechat</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>wxYOUR_WECHAT_APPID</string>
+            </array>
+        </dict>
+    </array>
+
+    <!-- 允许调起微信客户端 -->
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+        <string>weixin</string>
+        <string>weixinULAPI</string>
+    </array>
+
+    <!-- 若使用 Universal Link 方式注册微信，请在此配置 Associated Domains -->
+</dict>
+</plist>

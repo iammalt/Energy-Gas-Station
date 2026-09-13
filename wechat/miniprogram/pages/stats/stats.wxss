@@ -14,3 +14,9 @@
 .trend-bg { flex: 1; height: 20rpx; background: #eee; border-radius: 999rpx; overflow: hidden; margin: 0 16rpx; }
 .trend-fill { height: 100%; background: #576B95; border-radius: 999rpx; transition: width .3s; }
 .trend-pct { width: 80rpx; text-align: right; font-size: 26rpx; color: #666; }
+
+.fit-summary { display: flex; }
+.fit-item { flex: 1; text-align: center; padding: 24rpx 0; }
+.fit-num { font-size: 52rpx; font-weight: 800; color: #07C160; }
+.fit-unit { font-size: 26rpx; font-weight: 400; margin-left: 4rpx; color: #666; }
+.fit-cap { font-size: 26rpx; color: #666; margin-top: 6rpx; }

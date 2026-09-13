@@ -24,6 +24,18 @@
     </view>
   </view>
 
+  <view class="sec-title">本周健身汇总</view>
+  <view class="card fit-summary">
+    <view class="fit-item">
+      <view class="fit-num">{{fitWeek.runDistance}}<text class="fit-unit">km</text></view>
+      <view class="fit-cap">本周跑步距离</view>
+    </view>
+    <view class="fit-item">
+      <view class="fit-num">{{fitWeek.strengthDuration}}<text class="fit-unit">分</text></view>
+      <view class="fit-cap">本周力量时长</view>
+    </view>
+  </view>
+
   <view class="sec-title">本月各板块完成率</view>
   <view class="card">
     <view class="bar-row">
@@ -40,6 +52,18 @@
       <text class="bar-name">软考</text>
       <view class="bar-bg"><view class="bar-fill" style="width:{{month.exam}}%"></view></view>
       <text class="bar-pct">{{month.exam}}%</text>
+    </view>
+  </view>
+
+  <view class="sec-title">本月健身汇总</view>
+  <view class="card fit-summary">
+    <view class="fit-item">
+      <view class="fit-num">{{fitMonth.runDistance}}<text class="fit-unit">km</text></view>
+      <view class="fit-cap">当月跑步距离</view>
+    </view>
+    <view class="fit-item">
+      <view class="fit-num">{{fitMonth.strengthDuration}}<text class="fit-unit">分</text></view>
+      <view class="fit-cap">当月力量时长</view>
     </view>
   </view>
 

@@ -64,12 +64,12 @@
 
     <view class="field">
       <text class="field-label">时长(分)</text>
-      <input class="field-input" type="number" placeholder="30-40" value="{{fitnessForm.duration}}" data-field="duration" bindinput="onFitnessInput"/>
+      <input class="field-input" type="number" placeholder="5-120（分钟）" value="{{fitnessForm.duration}}" data-field="duration" bindinput="onFitnessInput"/>
     </view>
 
     <view class="field" wx:if="{{fitnessForm.type === 'run'}}">
       <text class="field-label">距离(km)</text>
-      <input class="field-input" type="digit" placeholder="如 6.0" value="{{fitnessForm.distance}}" data-field="distance" bindinput="onFitnessInput"/>
+      <input class="field-input" type="digit" placeholder="2-43（km）" value="{{fitnessForm.distance}}" data-field="distance" bindinput="onFitnessInput"/>
     </view>
 
     <view class="field">

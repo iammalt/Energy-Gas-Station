@@ -7,6 +7,8 @@ Page({
     streak: 0,
     week: { embed: 0, ai: 0, exam: 0 },
     month: { embed: 0, ai: 0, exam: 0 },
+    fitMonth: { runDistance: 0, strengthDuration: 0 },
+    fitWeek: { runDistance: 0, strengthDuration: 0 },
     trend: [] // 最近 4 周完成率
   },
 
@@ -33,11 +35,31 @@ Page({
       const weekCheck = await store.getCheckinsRange(util.formatDate(ws), util.formatDate(we))
       const week = this.calcSectionRate(weekCheck, 7)
 
+      // 本周健身汇总：跑步总距离、力量总时长（本周可能跨月，单独按周范围查询）
+      const fitWeekRaw = await store.getFitnessRange(util.formatDate(ws), util.formatDate(we))
+      let runDistanceW = 0
+      let strengthDurationW = 0
+      fitWeekRaw.forEach(f => {
+        if (f.type === 'run') runDistanceW += (f.distance || 0)
+        else if (f.type === 'strength') strengthDurationW += (f.duration || 0)
+      })
+      const fitWeek = { runDistance: Math.round(runDistanceW * 10) / 10, strengthDuration: strengthDurationW }
+
       // 本月
       const ms = new Date(now.getFullYear(), now.getMonth(), 1)
       const me = new Date(now.getFullYear(), now.getMonth() + 1, 0)
       const monthCheck = await store.getCheckinsRange(util.formatDate(ms), util.formatDate(me))
       const month = this.calcSectionRate(monthCheck, me.getDate())
+
+      // 本月健身汇总：跑步总距离、力量总时长
+      const fitMonth = await store.getFitnessRange(util.formatDate(ms), util.formatDate(me))
+      let runDistance = 0
+      let strengthDuration = 0
+      fitMonth.forEach(f => {
+        if (f.type === 'run') runDistance += (f.distance || 0)
+        else if (f.type === 'strength') strengthDuration += (f.duration || 0)
+      })
+      runDistance = Math.round(runDistance * 10) / 10
 
       // 趋势：最近 4 周完成率（按记录数计算）
       const trend = []
@@ -56,7 +78,7 @@ Page({
         })
       }
 
-      this.setData({ streak, week, month, trend })
+      this.setData({ streak, week, month, fitMonth: { runDistance, strengthDuration }, fitWeek, trend })
     } catch (e) {
       console.error(e)
       wx.showToast({ title: '加载失败', icon: 'none' })

@@ -188,9 +188,17 @@ Page({
   async saveFitness() {
     const f = this.data.fitnessForm
     const duration = parseInt(f.duration, 10)
-    if (!duration || duration <= 0) {
-      wx.showToast({ title: '请填写时长(分钟)', icon: 'none' })
+    if (!duration || duration < 5 || duration > 120) {
+      wx.showToast({ title: '时长请填 5-120 分钟', icon: 'none' })
       return
+    }
+    let distance = 0
+    if (f.type === 'run') {
+      distance = f.distance === '' ? 0 : parseFloat(f.distance)
+      if (!distance || distance < 2 || distance > 43) {
+        wx.showToast({ title: '跑步距离请填 2-43 km', icon: 'none' })
+        return
+      }
     }
     const pain = {
       knee: f.knee === '' ? 0 : parseInt(f.knee, 10),
@@ -202,7 +210,7 @@ Page({
         date: this.data.todayDate,
         type: f.type,
         duration,
-        distance: f.type === 'run' ? (f.distance === '' ? 0 : parseFloat(f.distance)) : 0,
+        distance: f.type === 'run' ? distance : 0,
         weight: f.weight === '' ? 0 : parseFloat(f.weight),
         pain,
         note: f.note

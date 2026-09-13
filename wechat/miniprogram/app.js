@@ -3,7 +3,8 @@ App({
   globalData: {
     // 云开发环境 ID（来自微信开发者工具 -> 云开发 -> 设置 -> 环境）
     envId: 'cloud1-d0gjmeamg9ba663fc',   // 环境 ID（来自云开发控制台-设置-环境）
-    openid: ''
+    openid: '',
+    unionid: ''   // 微信开放平台 unionid：小程序/网页跨端共享同一份数据的对齐主键
   },
 
   onLaunch() {
@@ -16,25 +17,39 @@ App({
       env: this.globalData.envId === 'your-env-id' ? undefined : this.globalData.envId,
       traceUser: true
     })
-    // 提前拉取 openid，供各页面多端数据隔离使用
-    this.ensureOpenid()
+    // 提前拉取 openid + unionid，供各页面多端数据隔离与跨端同步使用
+    this.ensureUser()
   },
 
-  // 获取当前用户 openid（多端同账号数据隔离、同步的关键）
-  ensureOpenid() {
-    if (this.globalData.openid) return Promise.resolve(this.globalData.openid)
-    if (this._openidPromise) return this._openidPromise
-    this._openidPromise = wx.cloud.callFunction({ name: 'getOpenId' })
+  // 获取当前用户 openid 与 unionid（多端同账号数据隔离、同步的关键）
+  ensureUser() {
+    if (this.globalData.openid && this.globalData.unionid) {
+      return Promise.resolve({ openid: this.globalData.openid, unionid: this.globalData.unionid })
+    }
+    if (this._userPromise) return this._userPromise
+    this._userPromise = wx.cloud.callFunction({ name: 'getOpenId' })
       .then(res => {
         const openid = res.result && res.result.openid
+        const unionid = (res.result && res.result.unionid) || '' // 未绑定开放平台时为空
         this.globalData.openid = openid
-        return openid
+        this.globalData.unionid = unionid
+        return { openid, unionid }
       })
       .catch(err => {
-        console.error('获取 openid 失败', err)
-        this._openidPromise = null // 失败则允许下次重试
+        console.error('获取用户信息失败', err)
+        this._userPromise = null // 失败则允许下次重试
         return Promise.reject(err)
       })
-    return this._openidPromise
+    return this._userPromise
+  },
+
+  // 兼容旧调用：仅返回 openid
+  ensureOpenid() {
+    return this.ensureUser().then(u => u.openid)
+  },
+
+  // 跨端对齐主键：网页端会用同一 unionid 读写，从而实现小程序/网页同一份数据
+  ensureUnionid() {
+    return this.ensureUser().then(u => u.unionid)
   }
 })

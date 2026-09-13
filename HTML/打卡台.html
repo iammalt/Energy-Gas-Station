@@ -182,6 +182,9 @@
   @media (max-width:767px){.stats{grid-template-columns:repeat(2,1fr);}.topbar h1{font-size:16px;}}
   @media (min-width:768px){#bottomtab{display:none !important;}}
 </style>
+<!-- 微信云开发 Web SDK（@cloudbase/js-sdk）：用于网页端直连同一云数据库。
+     离线 / 未配置安全域名 / 未登录时此脚本加载失败或被跳过，应用自动退回纯本地模式。 -->
+<script src="https://static.cloudbase.net/cloudbase-js-sdk/latest/cloudbase.full.js"></script>
 </head>
 <body>
 <canvas id="bg"></canvas>
@@ -192,7 +195,7 @@
       <div><b>打卡中心</b><small>IAMMALT LIFE OS</small></div>
     </div>
     <div id="sideNav"></div>
-    <div class="side-foot">数据存于本机浏览器<br>离线可用 · 建议定期导出备份</div>
+    <div class="side-foot">本地缓存 + 云端同步（按微信 unionid 对齐）<br>联网登录后多端同数据 · 建议定期导出备份</div>
   </aside>
 
   <main id="main">
@@ -218,7 +221,8 @@
         <button class="btn sm" onclick="exportJSON()">⬇ 导出 JSON</button>
         <button class="btn sm ghost" onclick="document.getElementById('importFile').click()">⬆ 导入恢复</button>
         <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importJSON(event)">
-        <button class="btn sm danger" onclick="clearAll()">🗑 清空示例数据</button>
+        <button class="btn sm" onclick="cloudLoginBtn()">☁ 云同步登录</button>
+        <button class="btn sm danger" onclick="clearAll()">🗑 清空</button>
       </div>
     </section>
   </main>
@@ -280,8 +284,14 @@ function saveAudit(){localStorage.setItem(AUDIT_KEY,JSON.stringify(audits));}
 
 /* ============ 存储 ============ */
 let records=[];
-function load(){try{const r=localStorage.getItem(KEY);records=r?JSON.parse(r):[];}catch(e){records=[];}if(!Array.isArray(records))records=[];if(records.length===0)seed();}
-function save(){localStorage.setItem(KEY,JSON.stringify(records));flashSync();}
+const dirtyIds=new Set(); // 待同步到云端的记录 id（离线时累积，联网后补齐）
+function load(){try{const r=localStorage.getItem(KEY);records=r?JSON.parse(r):[];}catch(e){records=[];}if(!Array.isArray(records))records=[];}
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(records)); // 本地缓存始终写入（离线兜底）
+  if(cloudOK){dirtyIds.forEach(id=>{const r=records.find(x=>x.id===id);if(r)cloudPushRec(r);});dirtyIds.clear();}
+  flashSync();
+}
+function markDirty(id){if(id)dirtyIds.add(id);}
 function seed(){
   const t=new Date();
   const mk=(sec,off,dur,topic,note,pain)=>{const d=new Date(t);d.setDate(d.getDate()-off);const ds=fmt(d);
@@ -298,13 +308,127 @@ function seed(){
   save();
 }
 
+/* ============ 云同步层（共享微信云数据库，unionid 跨端对齐） ============
+   方案：网页端经 @cloudbase/js-sdk 直连同一云环境；以 unionid 为跨端主键。
+   离线优先：联网且微信登录后，本地 records 与云端 checkins 双向同步；
+   断网时仅存本地并进入写队列，恢复联网由 cloudFlush 补齐。所有云操作失败均降级为本地。 */
+const CLOUD_ENV='cloud1-d0gjmeamg9ba663fc';
+let cloud=null, db=null, cloudOK=false, unionid='', webLoggedIn=false;
+const writeQueue=[]; let flushing=false;
+function cloudAvailable(){return cloudOK && !!unionid;}
+
+function setSync(t,ok){
+  const e=document.getElementById('syncText'); if(e)e.textContent=t;
+  const dot=document.querySelector('.sync .dot');
+  if(dot){const c=ok?'var(--green)':'var(--magenta)';dot.style.background=c;dot.style.boxShadow='0 0 8px '+c;}
+}
+
+async function cloudInit(){
+  if(cloudOK)return true;
+  const SDK=window.cloudbase||window.cloud;
+  if(!SDK||!SDK.init){setSync('本地模式（未加载云SDK）');return false;}
+  try{cloud=SDK;cloud.init({env:CLOUD_ENV,traceUser:true});db=cloud.database();cloudOK=true;return true;}
+  catch(e){console.error('云初始化失败',e);setSync('云初始化失败');return false;}
+}
+
+async function cloudLogin(){
+  if(!cloudOK)return false;
+  try{
+    let auth; try{auth=cloud.auth({persistence:'local'});}catch(_){auth=cloud.auth();}
+    const ls=await auth.getLoginState();
+    if(ls&&ls.user){unionid=ls.user.unionId||'';webLoggedIn=true;
+      setSync(unionid?'已登录·跨端同步':'已登录·本端');return true;}
+    // 未登录且为 http(s) 环境 → 触发微信网页授权（会跳转，回来后刷新再次进入此分支）
+    if(/^https?:/i.test(location.href)){
+      setSync('正在跳转微信授权…');
+      await auth.weixinWebAuthProvider().signIn();
+      return false; // 实际会跳转，不会返回
+    }
+    setSync('本地模式（非安全域名）');return false;
+  }catch(e){console.error('云登录失败',e);setSync('云登录失败');return false;}
+}
+
+async function cloudPushRec(rec){
+  if(!cloudAvailable()){writeQueue.push(rec);return false;}
+  try{
+    const doc={unionid,recId:rec.id,done:true,section:rec.section,date:rec.date,
+      duration:rec.duration||0,topic:rec.topic||'',note:rec.note||'',pain:!!rec.pain,
+      mode:rec.mode||'',count:rec.count||0,accuracy:rec.accuracy||0,updatedAt:db.serverDate()};
+    const res=await db.collection('checkins').where({unionid,recId:rec.id}).get();
+    if(res.data.length)await db.collection('checkins').doc(res.data[0]._id).update({data:doc});
+    else await db.collection('checkins').add({data:{...doc,createdAt:db.serverDate()}});
+    return true;
+  }catch(e){console.error('云写入失败',e);writeQueue.push(rec);return false;}
+}
+
+async function cloudDeleteRec(id){
+  if(!cloudAvailable())return;
+  try{await db.collection('checkins').where({unionid,recId:id}).remove();}catch(e){console.error('云删除失败',e);}
+}
+
+async function cloudDeleteAll(){
+  if(!cloudAvailable())return;
+  try{await db.collection('checkins').where({unionid}).remove();}catch(e){console.error('云清空失败',e);}
+}
+
+async function cloudPull(){
+  if(!cloudAvailable())return;
+  try{
+    const res=await db.collection('checkins').where({unionid}).limit(1000).get();
+    const have=new Set(records.map(r=>r.id));
+    res.data.forEach(d=>{
+      const id=d.recId||('mp_'+d._id);
+      if(!have.has(id)){
+        records.push({id,section:d.section,date:d.date,duration:d.duration,
+          topic:d.topic,note:d.note,pain:!!d.pain,mode:d.mode,count:d.count,accuracy:d.accuracy});
+        have.add(id);
+      }
+    });
+    save();
+  }catch(e){console.error('云拉取失败',e);}
+}
+
+async function cloudFlush(){
+  if(flushing||!cloudAvailable())return;
+  flushing=true;
+  while(writeQueue.length){const rec=writeQueue.shift();await cloudPushRec(rec);}
+  flushing=false;
+}
+
+function refreshViews(){
+  const v=document.querySelector('.view.active');if(!v)return;
+  const id=v.id.replace('view-','');
+  if(id==='home')renderHome();else if(id==='audit')renderAudit();else renderSection(id);
+}
+
+function cloudLoginBtn(){toast('正在连接云并登录…');bootstrapCloud();}
+
+async function cloudPushAllLocal(){
+  // 登录并拉取云端后，把本地（非云端来源）记录补齐到云端，覆盖“上次离线期间新建”的记录
+  if(!cloudAvailable())return;
+  for(const r of records){if(r&&r.id&&!String(r.id).startsWith('mp_'))await cloudPushRec(r);}
+}
+
+async function bootstrapCloud(){
+  setSync('连接云…');
+  if(await cloudInit()){
+    await cloudLogin();
+    if(cloudAvailable()){await cloudPull();await cloudPushAllLocal();await cloudFlush();setSync('云同步已开启',true);}
+  }
+  // 无云时本地演示数据兜底（仅在完全本地且为空时，避免污染共享库）
+  if(!cloudAvailable()&&records.length===0)seed();
+  refreshViews();
+}
+
+window.addEventListener('online',()=>{if(cloudOK&&unionid)cloudFlush();});
+
 /* ============ 工具 ============ */
 function fmt(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function todayStr(){return fmt(new Date());}
 function parse(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
 function dur(a,b){return Math.round((parse(b)-parse(a))/86400000);}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
-function flashSync(){const e=document.getElementById('syncText');e.textContent='同步中…';setTimeout(()=>e.textContent='本地已同步',500);}
+function flashSync(){const e=document.getElementById('syncText');if(!e)return;e.textContent=cloudAvailable()?'云端已同步':'本地已同步';}
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
 /* ============ 导航 ============ */
@@ -498,7 +622,7 @@ function quickCheckin(id){
     pain:false};
   // 把字段额外项置默认
   sec.fields.forEach(f=>{if(!(f.k in rec))rec[f.k]=(f.type==='checkbox'?false:(f.type==='number'?0:''));});
-  records.push(rec);save();
+  records.push(rec);markDirty(rec.id);save();
   toast('⚡ 一键打卡成功！'+ (plan?('计划：'+plan):'（未读到计划，用了默认）'));
   // 自动触发快速审核提示
   const t=todayStr();let a=auditOf(t);if(!a){a={date:t,rate:'good',note:'一键打卡自动自评',done:SECTIONS.filter(s=>secRecords(s.id).some(r=>r.date===t)).length,pain:false,deep:[]};audits.push(a);saveAudit();}
@@ -526,7 +650,7 @@ function autoCheckinAll(){
       const rec={id:'r'+Date.now()+Math.random().toString(36).slice(2,6),section:s.id,date:today,
         duration:DEFAULT_DUR[s.id]||30,topic:plan||s.short+' 今日打卡',note:'（一键打卡·计划：'+(plan||s.short+' 今日打卡')+'）',pain:false};
       s.fields.forEach(f=>{if(!(f.k in rec))rec[f.k]=(f.type==='checkbox'?false:(f.type==='number'?0:''));});
-      records.push(rec);checked++;status='done';
+      records.push(rec);markDirty(rec.id);checked++;status='done';
     }
     const hasPainToday=secRecords(s.id).filter(r=>r.date===today).some(r=>r.pain);
     rows.push({s,plan,status,pain:hasPainToday});
@@ -893,10 +1017,10 @@ function stackedBar(el,days,series){
 }
 
 /* ============ 删除 / 导出 / 导入 / 清空 ============ */
-function delRec(id){const rec=records.find(r=>r.id===id);openModal('删除记录','确定删除这条打卡记录？此操作不可撤销。',()=>{records=records.filter(r=>r.id!==id);save();if(rec)renderList(rec.section);const v=document.querySelector('.view.active').id.replace('view-','');if(v==='home')renderHome();toast('已删除');});}
+function delRec(id){const rec=records.find(r=>r.id===id);openModal('删除记录','确定删除这条打卡记录？此操作不可撤销。',()=>{records=records.filter(r=>r.id!==id);markDirty(id);cloudDeleteRec(id);save();if(rec)renderList(rec.section);const v=document.querySelector('.view.active').id.replace('view-','');if(v==='home')renderHome();toast('已删除');});}
 function exportJSON(){const payload={records,audits};const b=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='pa-checkin-'+todayStr()+'.json';a.click();toast('已导出 JSON 备份（含审核）');}
-function importJSON(e){const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const data=JSON.parse(rd.result);const recs=Array.isArray(data)?data:data.records;if(!Array.isArray(recs))throw 0;const merged=records.slice();let add=0;recs.forEach(r=>{if(r&&r.section&&r.date&&!merged.some(m=>m.id===r.id)){merged.push(r);add++;}});records=merged;save();if(Array.isArray(data.audits)){const am=audits.slice();let aa=0;data.audits.forEach(a=>{if(a&&a.date&&!am.some(m=>m.date===a.date)){am.push(a);aa++;}});audits=am;saveAudit();}if(document.querySelector('.view.active').id==='view-home')renderHome();toast('已导入，新增打卡 '+add+' 条'+(data.audits?'、审核 '+aa+' 条':''));}catch(err){toast('导入失败：格式不正确');}e.target.value='';};rd.readAsText(f);}
-function clearAll(){openModal('清空数据','将删除全部 '+records.length+' 条打卡记录、'+audits.length+' 条审核且无法恢复。建议先导出备份。',()=>{records=[];audits=[];save();saveAudit();renderHome();toast('已清空');});}
+function importJSON(e){const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const data=JSON.parse(rd.result);const recs=Array.isArray(data)?data:data.records;if(!Array.isArray(recs))throw 0;const merged=records.slice();let add=0;recs.forEach(r=>{if(r&&r.section&&r.date&&!merged.some(m=>m.id===r.id)){merged.push(r);add++;}});merged.forEach(r=>dirtyIds.add(r.id));records=merged;save();if(Array.isArray(data.audits)){const am=audits.slice();let aa=0;data.audits.forEach(a=>{if(a&&a.date&&!am.some(m=>m.date===a.date)){am.push(a);aa++;}});audits=am;saveAudit();}if(document.querySelector('.view.active').id==='view-home')renderHome();toast('已导入，新增打卡 '+add+' 条'+(data.audits?'、审核 '+aa+' 条':''));}catch(err){toast('导入失败：格式不正确');}e.target.value='';};rd.readAsText(f);}
+function clearAll(){openModal('清空数据','将删除全部 '+records.length+' 条打卡记录、'+audits.length+' 条审核且无法恢复。建议先导出备份。',()=>{records=[];audits=[];cloudDeleteAll();save();saveAudit();renderHome();toast('已清空');});}
 
 /* ============ 模态 ============ */
 let modalCb=null;
@@ -924,7 +1048,7 @@ load();loadAudit();
 // 计划/习题缓存不再写死历史周：当前周由 discoverWeek()/autoWeekPaths() 自动识别（按当前日期），
 // 今日具体计划 JSON 由用户在「深度审核→设置路径」粘贴，或由对话 agent 写入 localStorage('wb_pa_plan_'+weekLabel)。
 // 一键打卡读不到缓存时，用板块名兜底（见 quickCheckin），并保持提示。
-applyLayout();buildNav();renderHome();flashSync();
+applyLayout();buildNav();renderHome();bootstrapCloud(); // 异步连接云并同步（失败则保持本地离线）
 </script>
 </body>
 </html>
