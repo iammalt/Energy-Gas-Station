@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!-- 个人生活助理 · 打卡中心：3 学习子版块（嵌入式工作流/AI学习/软考备考），单文件全内联，离线可用，localStorage 持久化 -->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>个人生活助理 · 打卡中心</title>
+<style>
+  :root{
+    --bg:#eef1f8; --bg2:#e3e8f4;
+    --cyan:#0ea5b7; --magenta:#d6339c; --purple:#7c3aed; --green:#1fae3a;
+    --text:#1c2030; --muted:#5d6478;
+    --glass:rgba(255,255,255,0.72); --glass-b:rgba(124,58,237,0.18);
+    --danger:#e23a5e; --radius:16px;
+    --card-shadow:0 8px 24px rgba(40,48,90,0.10);
+    --mono:'Courier New',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{font-family:var(--sans);color:var(--text);
+    background:radial-gradient(1200px 800px at 80% -10%,rgba(124,58,237,.10),transparent 60%),
+              radial-gradient(1000px 700px at -10% 110%,rgba(14,165,183,.10),transparent 55%),
+              linear-gradient(160deg,var(--bg),var(--bg2));
+    background-attachment:fixed;overflow-x:hidden;}
+  #bg{position:fixed;inset:0;z-index:0;opacity:.35;}
+  #app{position:relative;z-index:1;display:flex;min-height:100vh;}
+
+  /* Sidebar (PC) */
+  #sidebar{width:236px;flex:0 0 236px;padding:20px 14px;border-right:1px solid var(--glass-b);
+    background:linear-gradient(180deg,rgba(255,255,255,.85),rgba(240,243,250,.7));backdrop-filter:blur(10px);
+    display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh;}
+  .brand{display:flex;align-items:center;gap:10px;padding:4px 8px 16px;}
+  .brand .logo{width:36px;height:36px;flex:0 0 36px;border-radius:10px;
+    background:linear-gradient(135deg,var(--cyan),var(--magenta));display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 18px rgba(0,240,255,.5);}
+  .brand b{font-family:var(--mono);font-size:15px;letter-spacing:1px;
+    background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .brand small{display:block;font-size:9px;color:var(--muted);letter-spacing:2px;}
+  .nav-item{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:12px;color:var(--muted);
+    cursor:pointer;font-size:14px;transition:.2s;border:1px solid transparent;min-height:44px;}
+  .nav-item svg{width:19px;height:19px;flex:0 0 19px;}
+  .nav-item:hover{color:var(--text);background:rgba(124,58,237,.08);}
+  .nav-item.active{color:var(--purple);border-color:var(--glass-b);font-weight:700;
+    background:linear-gradient(90deg,rgba(14,165,183,.12),rgba(124,58,237,.1));}
+  .nav-item.active svg{filter:drop-shadow(0 0 4px rgba(14,165,183,.5));}
+  .nav-dot{width:8px;height:8px;border-radius:50%;flex:0 0 8px;margin-left:auto;}
+  .side-foot{margin-top:auto;font-size:11px;color:var(--muted);padding:8px;line-height:1.6;}
+
+  /* Main */
+  #main{flex:1;min-width:0;display:flex;flex-direction:column;padding:18px 22px 90px;}
+  header.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;}
+  .topbar h1{font-size:19px;font-weight:700;letter-spacing:1px;}
+  .topbar h1 span{color:var(--cyan);}
+  .sync{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);
+    border:1px solid var(--glass-b);padding:6px 12px;border-radius:20px;background:var(--glass);}
+  .sync .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 1.8s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* Cards */
+  .card{background:var(--glass);border:1px solid var(--glass-b);border-radius:var(--radius);padding:16px;
+    backdrop-filter:blur(8px);box-shadow:var(--card-shadow);}
+  .grid{display:grid;gap:14px;}
+  .stats{grid-template-columns:repeat(4,1fr);}
+  .stat .k{font-size:11px;color:var(--muted);letter-spacing:1px;}
+  .stat .v{font-family:var(--mono);font-size:26px;font-weight:700;margin-top:4px;color:var(--purple);}
+  .stat .u{font-size:12px;color:var(--muted);margin-left:3px;}
+  .section-title{display:flex;align-items:center;gap:9px;margin:20px 0 10px;font-size:15px;color:var(--text);font-weight:700;}
+  .section-title::before{content:"";width:4px;height:17px;border-radius:2px;background:linear-gradient(var(--purple),var(--cyan));}
+
+  /* Today / overdue */
+  .alert{border-left:3px solid var(--danger);background:rgba(226,58,94,.08);}
+  .alert.ok{border-left-color:var(--green);background:rgba(31,174,58,.08);}
+  .alert .row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 4px;}
+  .alert .row+.row{border-top:1px dashed rgba(28,32,48,.12);}
+  .alert .meta{font-size:13px;color:var(--muted);}
+  .alert .meta b{color:var(--text);font-family:var(--mono);}
+  .tag-over{color:var(--danger);font-size:12px;font-weight:700;letter-spacing:1px;}
+  .tag-today{color:var(--cyan);font-size:12px;font-weight:700;letter-spacing:1px;}
+  .tag-done{color:var(--green);font-size:12px;font-weight:700;}
+  .tag-audit{color:#d98300;font-size:12px;font-weight:700;letter-spacing:1px;}
+
+  /* Buttons */
+  .btn{font-family:var(--sans);font-size:14px;cursor:pointer;border-radius:11px;padding:11px 16px;
+    border:1px solid var(--glass-b);background:rgba(124,58,237,.06);color:var(--text);transition:.18s;
+    min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;}
+  .btn:hover{background:rgba(124,58,237,.12);}
+  .btn.primary{background:linear-gradient(90deg,var(--cyan),var(--purple));color:#fff;font-weight:700;border:none;}
+  .btn.primary:hover{filter:brightness(1.06);box-shadow:0 6px 18px rgba(124,58,237,.28);}
+  .btn.ghost{background:transparent;border-color:rgba(28,32,48,.18);}
+  .btn.danger{border-color:rgba(226,58,94,.4);color:var(--danger);background:rgba(226,58,94,.08);}
+  .btn.danger:hover{background:rgba(226,58,94,.16);}
+  .btn.sm{padding:8px 12px;font-size:13px;min-height:38px;}
+  .btn.lg{padding:13px 20px;font-size:15px;min-height:48px;font-weight:700;box-shadow:0 6px 18px rgba(124,58,237,.25);}
+  .btn.warn{background:linear-gradient(135deg,#ffb020,#ff7a45);color:#3a2400;box-shadow:0 6px 18px rgba(255,176,32,.25);}
+
+  /* 审核工作台 chip / link */
+  .link{display:inline-block;font-size:13px;color:var(--cyan);text-decoration:none;padding:3px 9px;border:1px solid rgba(14,165,183,.35);border-radius:8px;background:rgba(14,165,183,.08);}
+  .link:hover{background:rgba(14,165,183,.16);}
+  .chip{display:inline-block;font-size:12px;color:var(--muted);text-decoration:none;padding:4px 9px;border:1px solid rgba(28,32,48,.16);border-radius:8px;background:rgba(255,255,255,.6);cursor:pointer;font-family:inherit;}
+  .chip:hover{background:rgba(124,58,237,.1);color:var(--text);}
+  .chip-on{color:#fff;background:var(--green);border-color:var(--green);font-weight:700;}
+
+  /* Form */
+  .field{margin-bottom:13px;}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;letter-spacing:.5px;}
+  .field input,.field select,.field textarea{width:100%;font-size:16px;padding:11px 13px;border-radius:11px;
+    color:var(--text);background:#fff;border:1px solid rgba(28,32,48,.16);font-family:var(--sans);outline:none;transition:.18s;}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(14,165,183,.18);}
+  .field select option{background:#fff;}
+  .chk{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:14px;color:var(--muted);padding:8px 0;}
+  .chk input{width:20px;height:20px;accent-color:var(--purple);}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+
+  /* Home section cards */
+  .sec-card{display:flex;flex-direction:column;gap:10px;cursor:pointer;transition:.2s;}
+  .sec-card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,240,255,.15);}
+  .sec-card .top{display:flex;align-items:center;gap:12px;}
+  .sec-ic{width:42px;height:42px;flex:0 0 42px;border-radius:11px;display:flex;align-items:center;justify-content:center;}
+  .sec-ic svg{width:22px;height:22px;}
+  .sec-card .nm{font-weight:700;font-size:15px;}
+  .sec-card .gl{font-size:11px;color:var(--muted);line-height:1.4;}
+  .sec-card .bot{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .sec-card .mini{display:flex;gap:14px;font-size:12px;color:var(--muted);}
+  .sec-card .mini b{color:var(--text);font-family:var(--mono);}
+  .today-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;}
+  .tb-done{background:rgba(57,255,20,.15);color:var(--green);}
+  .tb-pend{background:rgba(0,240,255,.15);color:var(--cyan);}
+
+  /* Records list */
+  .rec{border:1px solid var(--glass-b);border-radius:12px;padding:13px;background:rgba(255,255,255,.55);}
+  .rec .top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .rec .date{font-family:var(--mono);font-size:12px;color:var(--muted);}
+  .rec .meta{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;font-size:13px;color:var(--muted);}
+  .rec .meta b{color:var(--text);font-family:var(--mono);}
+  .rec .note{margin-top:7px;font-size:13px;color:var(--muted);}
+  .rec .acts{margin-top:9px;display:flex;gap:8px;justify-content:flex-end;}
+  .pain-on{color:var(--danger);font-weight:700;}
+  .pain-off{color:var(--green);}
+
+  /* charts */
+  .chart-card svg{width:100%;height:auto;display:block;}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px;font-size:12px;color:var(--muted);}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle;}
+
+  /* bottom tab (mobile) */
+  #bottomtab{display:none;position:fixed;left:0;right:0;bottom:0;z-index:30;
+    background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(240,243,250,.96));border-top:1px solid var(--glass-b);
+    backdrop-filter:blur(12px);padding:5px 4px calc(5px + env(safe-area-inset-bottom));
+    grid-template-columns:repeat(5,1fr);}
+  #bottomtab .nav-item{flex-direction:column;gap:2px;font-size:10px;padding:5px 0;border-radius:9px;justify-content:center;}
+  #bottomtab .nav-item svg{width:20px;height:20px;}
+  #bottomtab .nav-dot{display:none;}
+
+  #toast{position:fixed;left:50%;top:18px;transform:translateX(-50%) translateY(-120%);
+    background:linear-gradient(90deg,var(--cyan),var(--magenta));color:#04121a;font-weight:700;
+    padding:11px 20px;border-radius:30px;z-index:99;box-shadow:0 8px 30px rgba(0,240,255,.4);
+    transition:transform .35s cubic-bezier(.2,.9,.3,1.4);font-size:14px;}
+  #toast.show{transform:translateX(-50%) translateY(0);}
+
+  .modal-bg{position:fixed;inset:0;z-index:80;background:rgba(28,32,48,.45);backdrop-filter:blur(4px);
+    display:none;align-items:center;justify-content:center;padding:20px;}
+  .modal-bg.show{display:flex;}
+  .modal{background:#fff;border:1px solid var(--glass-b);
+    border-radius:18px;padding:22px;max-width:380px;width:100%;box-shadow:var(--card-shadow);}
+  .modal h3{font-size:17px;margin-bottom:10px;color:var(--text);}
+  .modal p{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:18px;}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+  [data-anim]{animation:fadeUp .5s both;}
+
+  .hint{font-size:12px;color:var(--muted);margin-top:6px;}
+  .empty{text-align:center;color:var(--muted);padding:26px;font-size:14px;}
+
+  body.pc #bottomtab{display:none;}
+  body:not(.pc) #sidebar{display:none;}
+  body:not(.pc) #bottomtab{display:grid;}
+  body:not(.pc) #main{padding:16px 14px 96px;}
+
+  @media (max-width:767px){.stats{grid-template-columns:repeat(2,1fr);}.topbar h1{font-size:16px;}}
+  @media (min-width:768px){#bottomtab{display:none !important;}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div id="app">
+  <aside id="sidebar">
+    <div class="brand">
+      <div class="logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#04121a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+      <div><b>打卡中心</b><small>IAMMALT LIFE OS</small></div>
+    </div>
+    <div id="sideNav"></div>
+    <div class="side-foot">数据存于本机浏览器<br>离线可用 · 建议定期导出备份</div>
+  </aside>
+
+  <main id="main">
+    <header class="topbar">
+      <h1>个人生活助理 · <span>打卡中心</span></h1>
+      <div class="sync"><span class="dot"></span><span id="syncText">本地已同步</span></div>
+    </header>
+
+    <!-- Home -->
+    <section class="view active" id="view-home">
+      <div class="card" data-anim>
+        <div id="greet" style="font-size:14px;color:var(--muted)"></div>
+        <div id="homeStreak" style="font-size:24px;font-weight:700;margin-top:4px;"></div>
+      </div>
+      <div class="section-title">今天要处理</div>
+      <div id="homeToday"></div>
+      <div class="section-title">学习版块进度</div>
+      <div class="grid" id="homeCards" style="grid-template-columns:repeat(2,1fr)"></div>
+      <div class="section-title">近 7 天各版块打卡分布</div>
+      <div class="card chart-card" data-anim><div id="weekChart"></div><div class="legend" id="weekLegend"></div></div>
+      <div class="section-title">数据管理</div>
+      <div class="card" data-anim style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn sm" onclick="exportJSON()">⬇ 导出 JSON</button>
+        <button class="btn sm ghost" onclick="document.getElementById('importFile').click()">⬆ 导入恢复</button>
+        <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importJSON(event)">
+        <button class="btn sm danger" onclick="clearAll()">🗑 清空示例数据</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<nav id="bottomtab"><div id="bottomNav"></div></nav>
+<div id="toast"></div>
+<div class="modal-bg" id="modalBg"><div class="modal">
+  <h3 id="modalTitle">确认</h3><p id="modalText"></p>
+  <div style="display:flex;gap:10px;justify-content:flex-end;">
+    <button class="btn ghost" onclick="closeModal(false)">取消</button>
+    <button class="btn danger" id="modalOk" onclick="closeModal(true)">确认</button>
+  </div>
+</div></div>
+
+<script>
+/* ============ 配置：四大子版块（与原始设想一致） ============ */
+const KEY='wb_pa_checkin';
+const AUDIT_KEY='wb_pa_audit';
+const ICONS={
+  home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
+  embed:'<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/>',
+  ai:'<rect x="5" y="8" width="14" height="11" rx="2"/><path d="M12 8V4M9 4h6M9 13h.01M15 13h.01"/>',
+  exam:'<path d="M4 5a2 2 0 0 1 2-2h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M15 3v5h5M8 13h8M8 17h5"/>',
+  audit:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'
+};
+const SECTIONS=[
+  {id:'embed', name:'嵌入式工作流搭建师', short:'嵌入式', color:'#ff2bd6',
+   goal:'EAS 报警系统开发工作流提效', weeklyTarget:3,
+   fields:[
+     {k:'topic',label:'任务 / 脑洞主题',type:'text',required:true},
+     {k:'duration',label:'投入时长(分钟)',type:'number',required:true},
+     {k:'note',label:'进展 / 备注',type:'text'}
+   ]},
+  {id:'ai', name:'AI培训师', short:'AI学习', color:'#a855f7',
+   goal:'AI 能力稳步提升 (Claude Code/MCP/Skill)', weeklyTarget:4,
+   fields:[
+     {k:'topic',label:'学习主题',type:'select',opts:['Claude Code','MCP','Skill开发','大模型基础','Agent/工作流'],required:true},
+     {k:'mode',label:'学习形式',type:'select',opts:['做自测题','看视频','写笔记','实操练习']},
+     {k:'duration',label:'时长(分钟)',type:'number',required:true},
+     {k:'note',label:'心得',type:'text'}
+   ]},
+  {id:'exam', name:'高级架构讲师', short:'软考备考', color:'#39ff14',
+   goal:'2027年5月 高级嵌入式架构设计师 通过', weeklyTarget:3,
+   fields:[
+     {k:'topic',label:'学习主题',type:'select',opts:['架构设计','论文写作','真题演练','案例解析'],required:true},
+     {k:'count',label:'做题数',type:'number'},
+     {k:'duration',label:'时长(分钟)',type:'number',required:true},
+     {k:'accuracy',label:'正确率(%)',type:'number'},
+     {k:'note',label:'备注',type:'text'}
+   ]}
+];
+const secMap=Object.fromEntries(SECTIONS.map(s=>[s.id,s]));
+
+/* ============ 审核存储 ============ */
+let audits=[];
+function loadAudit(){try{const r=localStorage.getItem(AUDIT_KEY);audits=r?JSON.parse(r):[];}catch(e){audits=[];}if(!Array.isArray(audits))audits=[];}
+function saveAudit(){localStorage.setItem(AUDIT_KEY,JSON.stringify(audits));}
+
+/* ============ 存储 ============ */
+let records=[];
+function load(){try{const r=localStorage.getItem(KEY);records=r?JSON.parse(r):[];}catch(e){records=[];}if(!Array.isArray(records))records=[];if(records.length===0)seed();}
+function save(){localStorage.setItem(KEY,JSON.stringify(records));flashSync();}
+function seed(){
+  const t=new Date();
+  const mk=(sec,off,dur,topic,note,pain)=>{const d=new Date(t);d.setDate(d.getDate()-off);const ds=fmt(d);
+    return {id:'s'+ds+sec+off,section:sec,date:ds,duration:dur,topic,note:note||'',pain:!!pain};};
+  records=[
+    mk('embed',2,60,'EAS报警流程脑洞','梳理报警优先级状态机',false),
+    mk('embed',4,45,'HC32L低功耗方案','停机模式唤醒逻辑',false),
+    mk('ai',2,50,'MCP架构学习','看图解+做自测,满分',false),
+    mk('ai',3,40,'Claude Code技巧','多光标/终端集成',false),
+    // 软考缺昨天记录 → 逾期示例
+    mk('exam',3,35,'死锁专题','资源分配图化简',false),
+    mk('exam',4,30,'架构风格','分层vs事件驱动',false)
+  ];
+  save();
+}
+
+/* ============ 工具 ============ */
+function fmt(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function todayStr(){return fmt(new Date());}
+function parse(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
+function dur(a,b){return Math.round((parse(b)-parse(a))/86400000);}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
+function flashSync(){const e=document.getElementById('syncText');e.textContent='同步中…';setTimeout(()=>e.textContent='本地已同步',500);}
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+/* ============ 导航 ============ */
+function buildNav(){
+  const items=[{id:'home',name:'总览',icon:ICONS.home},
+    ...SECTIONS.map(s=>({id:s.id,name:s.short,icon:ICONS[s.id],color:s.color})),
+    {id:'audit',name:'每日审核',icon:ICONS.audit,color:'#ffb020'}];
+  const side=document.getElementById('sideNav'),bottom=document.getElementById('bottomNav');
+  side.innerHTML=items.map(it=>`<div class="nav-item" data-view="${it.id}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${it.icon}</svg>
+    ${it.name}${it.color?`<span class="nav-dot" style="background:${it.color};box-shadow:0 0 6px ${it.color}"></span>`:''}</div>`).join('');
+  bottom.innerHTML=items.map(it=>`<div class="nav-item" data-view="${it.id}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${it.icon}</svg>
+    ${it.name}</div>`).join('');
+  document.querySelectorAll('.nav-item').forEach(n=>n.addEventListener('click',()=>go(n.dataset.view)));
+}
+function go(view){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  let el=document.getElementById('view-'+view);
+  if(!el){
+    if(view==='audit'){renderAudit();el=document.getElementById('view-audit');}
+    else el=buildSectionView(view);
+  }
+  if(!el)return;
+  el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===view));
+  const sec=document.getElementById('view-'+view);
+  if(sec)sec.querySelectorAll('[data-anim]').forEach((e,i)=>{e.style.animation='none';void e.offsetWidth;e.style.animation=`fadeUp .5s ${i*0.06}s both`;});
+  if(view==='home')renderHome();
+  else if(view==='audit')renderAudit();
+  else renderSection(view);
+  window.scrollTo(0,0);
+}
+
+/* ============ 响应式 ============ */
+function applyLayout(){document.body.classList.toggle('pc',window.matchMedia('(min-width:768px)').matches);}
+window.addEventListener('resize',applyLayout);
+
+/* ============ 统计 ============ */
+function secRecords(id){return records.filter(r=>r.section===id);}
+function secStats(id){
+  const rs=secRecords(id);
+  const days=[...new Set(rs.map(r=>r.date))].sort();
+  let week=0;const t=parse(todayStr());const wkStart=new Date(t);wkStart.setDate(t.getDate()-6);
+  rs.forEach(r=>{if(parse(r.date)>=wkStart)week++;});
+  const last=days.length?days[days.length-1]:'—';
+  // 连续天数
+  let streak=0;let d=todayStr();
+  if(rs.some(r=>r.date===d)){streak=1;let p=parse(d);while(true){p.setDate(p.getDate()-1);const ps=fmt(p);if(rs.some(r=>r.date===ps))streak++;else break;}}
+  else{let p=parse(d);p.setDate(p.getDate()-1);const ps=fmt(p);if(rs.some(r=>r.date===ps)){streak=1;while(true){p.setDate(p.getDate()-2);const p2=fmt(p);if(rs.some(r=>r.date===p2))streak++;else break;}}}
+  return{total:rs.length,week,streak,last};
+}
+function todayStatus(id){
+  const t=todayStr();const hasToday=secRecords(id).some(r=>r.date===t);
+  const y=new Date();y.setDate(y.getDate()-1);const yStr=fmt(y);const hasYest=secRecords(id).some(r=>r.date===yStr);
+  return{hasToday,hasYest,overdue:!hasToday&&!hasYest};
+}
+
+/* ============ 总览 ============ */
+function renderHome(){
+  const all=records.length;
+  const doneToday=SECTIONS.filter(s=>todayStatus(s.id).hasToday).length;
+  document.getElementById('greet').textContent='iammalt，欢迎回来。今天是多线并进的一天。';
+  document.getElementById('homeStreak').textContent=`今日已完成 ${doneToday}/3 个学习版块 · 累计 ${all} 次打卡`;
+  // 今天要处理
+  const tb=document.getElementById('homeToday');
+  let html='';
+  SECTIONS.forEach(s=>{
+    const st=todayStatus(s.id);
+    if(st.overdue)html+=`<div class="card alert" data-anim><div class="row"><div><div class="tag-over">⚠ 逾期未完成</div><div class="meta">${s.short} 昨天未打卡，已顺延到今天</div></div><button class="btn sm primary" onclick="go('${s.id}')">去补卡</button></div></div>`;
+    else if(!st.hasToday)html+=`<div class="card alert ok" data-anim><div class="row"><div><div class="tag-today">● 今日待打卡</div><div class="meta">${s.short} 今天还没打卡</div></div><button class="btn sm primary" onclick="go('${s.id}')">去打卡</button></div></div>`;
+  });
+  // 待审核提醒
+  const tArr=todayStr();const tAud=dayAuditStatus(tArr);
+  if(tAud.done>0 && !tAud.audited)html+=`<div class="card alert" data-anim style="border-left:4px solid #ffb020"><div class="row"><div><div class="tag-audit">🔍 今日待审核</div><div class="meta">已打卡 ${tAud.done} 个版块，记得做每日审核闭环</div></div><button class="btn sm primary" onclick="go('audit')">去审核</button></div></div>`;
+  if(!html)html='<div class="card alert ok" data-anim><div class="row"><div><div class="tag-done">✓ 今日三学习版块全部完成</div><div class="meta">状态极佳，明天继续！</div></div></div></div>';
+  tb.innerHTML=html;
+  // 学习版块卡片
+  document.getElementById('homeCards').innerHTML=SECTIONS.map(s=>{
+    const st=secStats(s.id);const ts=todayStatus(s.id);const pct=Math.min(100,Math.round(st.week/s.weeklyTarget*100));
+    return `<div class="card sec-card" data-anim onclick="go('${s.id}')">
+      <div class="top"><div class="sec-ic" style="background:${s.color}22;color:${s.color}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[s.id]}</svg></div>
+        <div><div class="nm">${s.name}</div><div class="gl">${s.goal}</div></div></div>
+      <div class="bot">
+        <div class="mini"><span>总<b>${st.total}</b></span><span>连<b>${st.streak}</b></span><span>周<b>${st.week}</b></span></div>
+        <span class="today-badge ${ts.hasToday?'tb-done':'tb-pend'}">${ts.hasToday?'✓ 今日':'○ 待打卡'}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;"><div style="height:100%;width:${pct}%;background:${s.color};box-shadow:0 0 8px ${s.color}"></div></div>
+        <span style="font-size:11px;color:var(--muted)">周目标${pct}%</span>
+      </div>
+    </div>`;
+  }).join('');
+  // 周分布堆叠柱
+  const days=last7();
+  const series=SECTIONS.map(s=>({color:s.color,counts:days.map(ds=>secRecords(s.id).filter(r=>r.date===ds).length)}));
+  stackedBar(document.getElementById('weekChart'),days,series);
+  document.getElementById('weekLegend').innerHTML=SECTIONS.map(s=>`<span><i style="background:${s.color}"></i>${s.short}</span>`).join('');
+}
+function last7(){const t=parse(todayStr());const a=[];for(let i=6;i>=0;i--){const d=new Date(t);d.setDate(d.getDate()-i);a.push(fmt(d));}return a;}
+
+/* ============ 子版块视图 ============ */
+function buildSectionView(id){
+  const sec=secMap[id];
+  const el=document.createElement('section');el.className='view';el.id='view-'+id;
+  el.innerHTML=`
+    <div class="card" data-anim style="display:flex;align-items:center;gap:14px;">
+      <div class="sec-ic" style="width:48px;height:48px;flex:0 0 48px;border-radius:12px;background:${sec.color}22;color:${sec.color};display:flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;">${ICONS[id]}</svg></div>
+      <div><div style="font-size:18px;font-weight:700">${sec.name}</div><div class="hint">${sec.goal}</div></div>
+    </div>
+    <div class="grid stats" data-anim id="stats-${id}"></div>
+    <div class="section-title">今日状态</div>
+    <div id="today-${id}"></div>
+    <div class="section-title">打卡</div>
+    <div class="card" data-anim id="quick-${id}"></div>
+    <div class="section-title">本版块记录</div>
+    <div id="list-${id}"></div>`;
+  document.getElementById('main').appendChild(el);
+  return el;
+}
+function renderSection(id){
+  const sec=secMap[id];
+  const st=secStats(id);
+  document.getElementById('stats-'+id).innerHTML=`
+    <div class="stat"><div class="k">总打卡</div><div class="v">${st.total}<span class="u">次</span></div></div>
+    <div class="stat"><div class="k">连续</div><div class="v">${st.streak}<span class="u">天</span></div></div>
+    <div class="stat"><div class="k">本周</div><div class="v">${st.week}<span class="u">次</span></div></div>
+    <div class="stat"><div class="k">最近</div><div class="v" style="font-size:16px;padding-top:8px">${st.last.slice(5)}</div></div>`;
+  const ts=todayStatus(id);
+  let html='';
+  const quickBtn=`<button class="btn sm primary" onclick="quickCheckin('${id}')">⚡ 一键打卡</button>`;
+  if(ts.overdue)html=`<div class="card alert" data-anim><div class="row"><div><div class="tag-over">⚠ 逾期未完成</div><div class="meta">昨天未打卡，今天补上即可保持节奏</div></div><div style="display:flex;gap:6px">${quickBtn}</div></div></div>`;
+  else if(ts.hasToday)html=`<div class="card alert ok" data-anim><div class="row"><div><div class="tag-done">✓ 今日已打卡</div><div class="meta">已完成，可继续追加或查看记录</div></div><button class="btn sm ghost" onclick="quickCheckin('${id}')">再打一次</button></div></div>`;
+  else html=`<div class="card alert ok" data-anim><div class="row"><div><div class="tag-today">● 今日待打卡</div><div class="meta">还没有今天的记录，一键完成即可</div></div><div style="display:flex;gap:6px">${quickBtn}</div></div></div>`;
+  document.getElementById('today-'+id).innerHTML=html;
+  document.getElementById('quick-'+id).innerHTML=`
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <button class="btn primary lg" style="width:100%" onclick="quickCheckin('${id}')">⚡ 一键打卡（自动读取今日计划，免填写）</button>
+      <div class="hint">自动读取本周计划里「${sec.short}」今日任务作为打卡内容；同一天可多次打卡。</div>
+    </div>`;
+  renderList(id);
+}
+function renderList(id){
+  const list=secRecords(id).slice().sort((a,b)=>b.date.localeCompare(a.date));
+  const box=document.getElementById('list-'+id);
+  const pc=window.matchMedia('(min-width:768px)').matches;
+  if(list.length===0){box.innerHTML='<div class="empty">暂无记录，完成第一次打卡吧 ✨</div>';return;}
+  if(pc){
+    box.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:14px">
+      <thead><tr style="color:var(--muted);font-size:12px;text-align:left">
+      <th style="padding:9px 10px">日期</th><th style="padding:9px 10px">内容</th><th style="padding:9px 10px">时长</th>
+      <th style="padding:9px 10px">其它</th><th style="padding:9px 10px">备注</th><th></th></tr></thead><tbody>${
+      list.map(r=>`<tr style="border-top:1px solid rgba(255,255,255,.07)">
+        <td style="padding:9px 10px;font-family:var(--mono);font-size:12px;color:var(--muted)">${r.date}</td>
+        <td style="padding:9px 10px">${esc(r.topic)}</td>
+        <td style="padding:9px 10px">${r.duration}分</td>
+        <td style="padding:9px 10px;font-size:13px;color:var(--muted)">${r.pain?'<span class="pain-on">疼痛⚠</span>':(r.count?r.count+'题'+(r.accuracy?(' · '+r.accuracy+'%'):''):'—')}</td>
+        <td style="padding:9px 10px;color:var(--muted)">${esc(r.note)||'—'}</td>
+        <td style="padding:9px 10px;text-align:right"><button class="btn sm danger" onclick="delRec('${r.id}')">删除</button></td></tr>`).join('')
+    }</tbody></table></div>`;
+  }else{
+    box.innerHTML=list.map(r=>`<div class="rec" style="margin-bottom:11px">
+      <div class="top"><b>${esc(r.topic)}</b><span class="date">${r.date}</span></div>
+      <div class="meta"><span>⏱ <b>${r.duration}</b>分</span>${r.pain?'<span class="pain-on">疼痛⚠</span>':''}${r.count?`<span>📝 <b>${r.count}</b>题</span>`:''}${r.accuracy?`<span>🎯 <b>${r.accuracy}</b>%</span>`:''}</div>
+      ${r.note?`<div class="note">${esc(r.note)}</div>`:''}
+      <div class="acts"><button class="btn sm danger" onclick="delRec('${r.id}')">删除</button></div></div>`).join('');
+  }
+}
+
+/* 一键打卡：自动读取本周计划里该板块今天的任务，免填表单直接记录 */
+function todayPlanTopic(id){
+  try{
+    const wk=discoverWeek();
+    if(!wk.plan) return '';
+    const sec=secMap[id];
+    // 读取本地存储的计划缓存（由对话 agent 写入；Web 端无法直接读 file://）
+    const cache=JSON.parse(localStorage.getItem('wb_pa_plan_'+wk.weekLabel)||'null');
+    if(cache&&cache[id]) return cache[id];
+  }catch(e){}
+  return '';
+}
+const DEFAULT_DUR={'embed':45,'ai':40,'exam':35};
+function quickCheckin(id){
+  const sec=secMap[id];
+  const plan=todayPlanTopic(id);
+  const rec={id:'r'+Date.now(),section:id,date:todayStr(),
+    duration:DEFAULT_DUR[id]||30,
+    topic:plan||sec.short+' 今日打卡',
+    note:plan?'（一键打卡·计划：'+plan+'）':'（一键打卡·默认）',
+    pain:false};
+  // 把字段额外项置默认
+  sec.fields.forEach(f=>{if(!(f.k in rec))rec[f.k]=(f.type==='checkbox'?false:(f.type==='number'?0:''));});
+  records.push(rec);save();
+  toast('⚡ 一键打卡成功！'+ (plan?('计划：'+plan):'（未读到计划，用了默认）'));
+  // 自动触发快速审核提示
+  const t=todayStr();let a=auditOf(t);if(!a){a={date:t,rate:'good',note:'一键打卡自动自评',done:SECTIONS.filter(s=>secRecords(s.id).some(r=>r.date===t)).length,pain:false,deep:[]};audits.push(a);saveAudit();}
+  renderSection(id);
+  if(document.querySelector('.view.active').id==='view-home')renderHome();
+}
+/* 一键打卡并生成审核报告：捕捉最近一周计划数据 → 完成三板块打卡 → 输出报告 */
+function getWeekPlanCache(){
+  const wk=discoverWeek();
+  if(!wk||!wk.weekLabel) return {};
+  try{const c=JSON.parse(localStorage.getItem('wb_pa_plan_'+wk.weekLabel)||'null');if(c)return c;}catch(e){}
+  return {};
+}
+function autoCheckinAll(){
+  const today=todayStr();
+  const cache=getWeekPlanCache();
+  const rows=[];let checked=0;
+  SECTIONS.forEach(s=>{
+    const plan=cache[s.id]||s.goal;
+    const already=secRecords(s.id).some(r=>r.date===today);
+    let status,recTopic=plan;
+    if(already){
+      status='already';
+    }else{
+      const rec={id:'r'+Date.now()+Math.random().toString(36).slice(2,6),section:s.id,date:today,
+        duration:DEFAULT_DUR[s.id]||30,topic:plan||s.short+' 今日打卡',note:'（一键打卡·计划：'+(plan||s.short+' 今日打卡')+'）',pain:false};
+      s.fields.forEach(f=>{if(!(f.k in rec))rec[f.k]=(f.type==='checkbox'?false:(f.type==='number'?0:''));});
+      records.push(rec);checked++;status='done';
+    }
+    const hasPainToday=secRecords(s.id).filter(r=>r.date===today).some(r=>r.pain);
+    rows.push({s,plan,status,pain:hasPainToday});
+  });
+  save();
+  // 自动写入今日快速审核自评
+  let a=auditOf(today);
+  if(!a){a={date:today,rate:'good',note:'一键打卡自动自评',done:SECTIONS.filter(s=>secRecords(s.id).some(r=>r.date===today)).length,pain:rows.some(r=>r.pain),deep:[]};audits.push(a);saveAudit();}
+  else{a.done=SECTIONS.filter(s=>secRecords(s.id).some(r=>r.date===today)).length;a.pain=rows.some(r=>r.pain);saveAudit();}
+  toast('⚡ 已捕捉本周计划并完成打卡（新增 '+checked+' 条）');
+  renderAudit();
+  renderAuditReport(rows,checked);
+  renderErrorCollect();
+  if(document.querySelector('.view.active')&&document.querySelector('.view.active').id==='view-home')renderHome();
+}
+function renderAuditReport(rows,checked){
+  const box=document.getElementById('auditReport');
+  if(!box)return;
+  const total=rows.length;
+  const done=rows.filter(r=>r.status==='done').length;
+  const already=rows.filter(r=>r.status==='already').length;
+  const painList=rows.filter(r=>r.pain);
+  let rate='good';
+  if(already===total)rate='warn';
+  const line=s=>`<div style="display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px dashed rgba(255,255,255,.08)">
+      <span style="width:9px;height:9px;border-radius:50%;margin-top:5px;flex:0 0 auto;background:${s.s.color};box-shadow:0 0 6px ${s.s.color}"></span>
+      <div style="flex:1">
+        <div style="font-weight:600">${s.s.short} <span class="hint">${s.status==='done'?'＋已打卡':s.status==='already'?'·已存在':'·未打卡'}</span></div>
+        <div class="meta" style="margin-top:2px">${esc(s.plan)}</div>
+        ${s.pain?'<div class="pain-on" style="margin-top:3px">⚠ 有疼痛记录，注意恢复</div>':''}
+      </div></div>`;
+  box.innerHTML=`<div class="card" data-anim>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <div><b>📊 一键打卡审核报告</b><div class="hint">${todayStr()} · 自动捕捉最近一周(${discoverWeek().weekLabel})计划数据</div></div>
+      <div style="text-align:right"><div class="tag-${rate==='good'?'done':'audit'}">${rate==='good'?'✓ 全板块打卡完成':'⚠ 部分已存在'}</div>
+      <div class="hint">新增 ${checked} · 已存在 ${already} · 共 ${total} 板块</div></div>
+    </div>
+    <div style="margin-top:6px">${rows.map(line).join('')}</div>
+    ${painList.length?'<div class="hint" style="margin-top:8px">⚠️ 疼痛板块：'+painList.map(r=>r.s.short).join('、')+'，建议降强度/冰敷并观察。</div>':''}
+    <div class="hint" style="margin-top:6px">下一步：在对话发「打卡+审核」附答案/笔记，由 AI 对照习题批改并追加错题本，结果回填「深度审核」标记。</div>
+  </div>`;
+}
+/* ============ 错误收集（对照本周习题批改 → 入错题本） ============ */
+function getWeekQuizCache(){
+  const wk=discoverWeek();
+  if(!wk||!wk.weekLabel) return [];
+  try{const c=JSON.parse(localStorage.getItem('wb_pa_quiz_'+wk.weekLabel)||'null');if(Array.isArray(c))return c;}catch(e){}
+  return [];
+}
+function todayQuizzes(){
+  const t=todayStr();
+  return getWeekQuizCache().filter(q=>q.date===t);
+}
+const QUIZ_PREFIX={'embedded-workflow':'EW','ai-trainer':'AI','senior-architect':'SE'};
+function collectErrors(){
+  const qs=todayQuizzes();
+  const box=document.getElementById('auditReport');
+  if(!qs.length){toast('今日无应做习题');return;}
+  const secMap2=Object.fromEntries(SECTIONS.map(s=>[s.id,s]));
+  const body=qs.map(q=>{
+    const opts=q.options.map((o,i)=>`<label style="display:block;padding:4px 0;font-size:14px"><input type="radio" name="q_${q.id}" value="${i}" style="margin-right:6px">${String.fromCharCode(65+i)}. ${esc(o)}</label>`).join('');
+    return `<div style="padding:10px 0;border-top:1px dashed rgba(28,32,48,.12)">
+      <div style="font-weight:600">[${secMap2[q.sec].short}] ${esc(q.q)}</div>
+      <div style="margin-top:5px">${opts}</div></div>`;
+  }).join('');
+  openModal('错误收集 · 今日习题批改（'+qs.length+'题）', body+`<div class="hint" style="margin-top:8px">勾选你的答案后点「批改收集」，错误的会自动生成错题归集到下方。</div>`,
+    ()=>{
+      const errs=[];
+      qs.forEach(q=>{
+        const sel=document.querySelector(`input[name="q_${q.id}"]:checked`);
+        if(!sel)return;
+        const picked=String.fromCharCode(65+parseInt(sel.value));
+        const correct=(q.type==='bool')?(picked==='A'?'正确':'错误'):picked;
+        if(correct!==q.ans){
+          errs.push({...q,my:correct});
+        }
+      });
+      saveErrors(errs);
+      toast(errs.length?('已收集 '+errs.length+' 道错题'):'✓ 全部正确，无错题');
+      renderErrorCollect();
+    });
+}
+function saveErrors(errs){
+  const t=todayStr();const wk=discoverWeek().weekLabel;
+  let store=JSON.parse(localStorage.getItem('wb_pa_errors_'+wk)||'{}');
+  store[t]=store[t]||{};
+  errs.forEach(e=>{store[t][e.id]={...e};});
+  // 清除今日已不存在的错
+  Object.keys(store[t]).forEach(k=>{if(!errs.some(e=>e.id===k))delete store[t][k];});
+  localStorage.setItem('wb_pa_errors_'+wk,JSON.stringify(store));
+}
+function renderErrorCollect(){
+  const box=document.getElementById('errorCollect');
+  if(!box)return;
+  const t=todayStr();const wk=discoverWeek().weekLabel;
+  const store=JSON.parse(localStorage.getItem('wb_pa_errors_'+wk)||'{}');
+  const errs=Object.values(store[t]||{});
+  if(!errs.length){box.innerHTML='<div class="card" data-anim><div class="hint">尚无错误收集。点「一键打卡并生成审核报告」完成打卡后，用「错误收集」批改今日习题，错题会自动归集于此（EW/AI/SE 前缀）。</div></div>';return;}
+  const secMap2=Object.fromEntries(SECTIONS.map(s=>[s.id,s]));
+  const md=errs.map(e=>{
+    const idx=errs.indexOf(e)+1;
+    return `### ${QUIZ_PREFIX[e.sec]||'X'}-${t.replace(/-/g,'')}-${String(idx).padStart(2,'0')}\n\n**日期**：${t}\n**来源**：今日习题批改 — \`${discoverWeek().quiz||''}\`\n**原题**：${e.q}\n> ⚠️ 你的答案：${e.my}\n> ✅ 正确答案：${e.ans}\n> 📝 解析：${e.why}\n`;
+  }).join('\n');
+  box.innerHTML=`<div class="card" data-anim>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <div><b>📕 错误收集</b><div class="hint">${t} · 已归集 ${errs.length} 道错题（待同步到对应错题本 .md）</div></div>
+      <button class="btn sm primary" onclick="copyErrors()">复制错题 Markdown</button>
+    </div>
+    <div style="margin-top:8px">
+      ${errs.map(e=>`<div style="padding:8px 0;border-top:1px dashed rgba(28,32,48,.12)">
+        <div style="font-weight:600">[${secMap2[e.sec].short}] ${esc(e.q)}</div>
+        <div class="meta" style="margin-top:3px"><span class="pain-on">⚠ 你的：${esc(e.my)}</span> → <span class="tag-done">✅ ${esc(e.ans)}</span></div>
+        <div class="hint" style="margin-top:2px">📝 ${esc(e.why)}</div>
+      </div>`).join('')}
+    </div>
+    <details style="margin-top:8px"><summary class="hint">查看/复制 Markdown 源</summary><pre style="white-space:pre-wrap;font-size:12px;color:var(--muted);margin-top:6px">${esc(md)}</pre></details>
+  </div>`;
+}
+function copyErrors(){
+  const t=todayStr();const wk=discoverWeek().weekLabel;
+  const store=JSON.parse(localStorage.getItem('wb_pa_errors_'+wk)||'{}');
+  const errs=Object.values(store[t]||{});
+  if(!errs.length){toast('无可复制的错题');return;}
+  const md=errs.map(e=>{
+    const idx=errs.indexOf(e)+1;
+    return `### ${QUIZ_PREFIX[e.sec]||'X'}-${t.replace(/-/g,'')}-${String(idx).padStart(2,'0')}\n\n**日期**：${t}\n**来源**：今日习题批改 — \`${discoverWeek().quiz||''}\`\n**原题**：${e.q}\n> ⚠️ 你的答案：${e.my}\n> ✅ 正确答案：${e.ans}\n> 📝 解析：${e.why}\n`;
+  }).join('\n');
+  if(navigator.clipboard)navigator.clipboard.writeText(md).then(()=>toast('已复制错题 Markdown，可粘贴到错题本'));else toast(md);
+}
+/* 深度审核资料体系：自动探测本周计划 / 习题 / 错题本 */
+const REPO_ROOT=(function(){ // 由本文件位置推断项目根（file:// 或 http）
+  const p=location.pathname.replace(/\\/g,'/');
+  const i=p.lastIndexOf('/打卡台.html');
+  return i>=0?decodeURIComponent(p.slice(0,i)):'';
+})();
+const MONTH_CN=['01','02','03','04','05','06','07','08','09','10','11','12'];
+function fileUrl(rel){ // rel 形如 每日计划/2026年11月/xxx.md
+  if(/^https?:/i.test(rel)||/^[a-z]:[\\/]/i.test(rel))return rel;
+  return 'file:///'+REPO_ROOT.replace(/^\/+/,'')+'/'+rel.replace(/\\/g,'/');
+}
+function autoWeekRange(){ // 返回本周一~周日的 MMDD 字符串
+  const t=new Date();const dow=(t.getDay()+6)%7; // 周一=0
+  const mon=new Date(t);mon.setDate(t.getDate()-dow);
+  const sun=new Date(mon);sun.setDate(mon.getDate()+6);
+  return {mon:fmt(mon),sun:fmt(sun),monM:mon,sunM:sun,y:mon.getFullYear()};
+}
+function autoWeekPaths(){
+  const w=autoWeekRange();
+  let mon=w.monM, sun=w.sunM, y=w.y;
+  // 9月空窗特例：计划自 2026-09-14 起正式重排；9-12/9-13 重启启动日仍归入 R1 周(0914-0920)
+  const RESET=new Date(2026,8,14);
+  if(mon<RESET){mon=RESET;sun=new Date(2026,8,20);y=2026;}
+  const monFmt=fmt(mon),sunFmt=fmt(sun);
+  const monthDir='每日计划/'+y+'年'+MONTH_CN[mon.getMonth()]+'月';
+  const base=monFmt.replace(/-/g,'')+'-'+sunFmt.replace(/-/g,'');
+  const plan=monthDir+'/'+base+'周计划.md';
+  const quiz=monthDir+'/'+base+'习题.md';
+  return {weekLabel:base,plan,quiz,auto:true};
+}
+function discoverWeek(){
+  const manual=JSON.parse(localStorage.getItem('wb_pa_week')||'null');
+  if(manual) return manual;
+  return autoWeekPaths();
+}
+function setWeekPaths(plan,quiz){
+  localStorage.setItem('wb_pa_week',JSON.stringify({weekLabel:plan.replace(/^.*[\\/]/,'').replace(/周计划\.md$/,''),plan,quiz}));
+}
+function auditOf(date){return audits.find(a=>a.date===date);}
+function dayAuditStatus(date){
+  const done=SECTIONS.filter(s=>secRecords(s.id).some(r=>r.date===date)).length;
+  const a=auditOf(date);
+  return{done,audited:!!a,a};
+}
+const WRONG_BOOKS={embed:'嵌入式工作流/错题本.md',ai:'AI学习/错题本.md',exam:'软考备考/错题本.md'};
+function deepAudited(sec,date){const a=auditOf(date);return a&&a.deep&&a.deep.includes(sec);}
+function renderAudit(){
+  const wrap=ensureView('audit','每日审核');
+  const today=todayStr();
+  const wk=discoverWeek();
+  // 先看昨天是否逾期审核
+  const y=new Date();y.setDate(y.getDate()-1);const yStr=fmt(y);
+  const yst=dayAuditStatus(yStr);
+  let alertHtml='';
+  if(!yst.audited && yst.done>0){
+    alertHtml=`<div class="card alert" data-anim><div class="row"><div><div class="tag-over">⚠ 昨日审核待补</div><div class="meta">${yStr} 已打卡 ${yst.done} 个版块，但还没审核，建议先补审</div></div><button class="btn sm primary" onclick="openAudit('${yStr}')">补审昨日</button></div></div>`;
+  }
+  // 今日审核卡片（快速打卡闭环）
+  const tst=dayAuditStatus(today);
+  let todayCard;
+  if(tst.audited){
+    const a=tst.a;
+    todayCard=`<div class="card alert ok" data-anim><div class="row"><div><div class="tag-done">✓ ${today} 已快速审核</div><div class="meta">自评：${rateLabel(a.rate)} · 达标版块 ${a.done}/3</div></div><button class="btn sm ghost" onclick="openAudit('${today}')">修改自评</button></div></div>`;
+  }else{
+    todayCard=`<div class="card" data-anim style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><div style="font-weight:700">${today} 待快速审核</div><div class="hint">今日已打卡 ${tst.done}/3 个版块${tst.done<3?'（可先补完其余版块再审核）':''}</div></div>
+      <button class="btn primary" onclick="openAudit('${today}')">${tst.done>0?'开始审核':'稍后审核'}</button></div>`;
+  }
+  // 汇总统计
+  const totalDays=audits.length;
+  const okDays=audits.filter(a=>a.rate==='good').length;
+  const warnDays=audits.filter(a=>a.rate==='warn').length;
+  const failDays=audits.filter(a=>a.rate==='fail').length;
+  const ratePct=totalDays?Math.round(okDays/totalDays*100):0;
+  // 深度审核工作台
+  const wkNote=wk&&wk.plan?`<a class="link" href="${fileUrl(wk.plan)}" target="_blank">📋 本周计划</a>`:'';
+  const wkQuiz=wk&&wk.quiz?`<a class="link" href="${fileUrl(wk.quiz)}" target="_blank">📝 本周习题</a>`:'';
+  let deepHtml;
+  if(!wk||!wk.plan){
+    deepHtml=`<div class="card" data-anim style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px"><div style="font-weight:700">设置本周资料路径</div><div class="hint">指向本周「周计划.md」与「习题.md」，深度审核入口才会激活</div></div>
+      <button class="btn sm primary" onclick="setupWeek()">设置路径</button></div>`;
+  }else{
+    const secRows=SECTIONS.map(s=>{
+      const has=secRecords(s.id).some(r=>r.date===today);
+      const deep=deepAudited(s.id,today);
+      const wb=WRONG_BOOKS[s.id];
+      return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px dashed rgba(255,255,255,.08)">
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:${s.color}"></span><span>${s.short}</span></div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <a class="chip" href="${fileUrl(wk.plan)}" target="_blank">计划</a>
+          <a class="chip" href="${fileUrl(wk.quiz)}" target="_blank">习题</a>
+          <a class="chip" href="${fileUrl(wb)}" target="_blank">错题本</a>
+          ${has?`<button class="chip ${deep?'chip-on':''}" onclick="toggleDeep('${s.id}','${today}')">${deep?'✓已审':'深度审'}</button>`:'<span class="hint">未打卡</span>'}
+        </div></div>`;
+    }).join('');
+    deepHtml=`<div class="card" data-anim>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+        <div><b>深度审核工作台</b><div class="hint">对照习题批改答案 · 审核学习笔记 · 追加错题本</div></div>
+        <div style="display:flex;gap:6px">${wkNote}${wkQuiz}<button class="chip" onclick="setupWeek()">重设</button></div>
+      </div>
+      ${secRows}
+      <div class="hint" style="margin-top:8px">提示：在对话发送「打卡+审核」或「交作业」并附答案/笔记，由 AI 对照习题与错题本完成批改，结果回流到上方按钮标记。</div>
+    </div>`;
+  }
+  wrap.innerHTML=`
+    <div class="card" data-anim>
+      <div style="font-size:14px;color:var(--muted)">打卡分两级：<b>快速打卡</b>（仅记录）与 <b>深度审核</b>（AI 批改答案 + 审笔记 + 入错题本）。每日自评是闭环，深度审核对接真实资料体系。</div>
+      <div class="grid stats" style="margin-top:12px">
+        <div class="stat"><div class="k">已审核天数</div><div class="v">${totalDays}<span class="u">天</span></div></div>
+        <div class="stat"><div class="k">达标率</div><div class="v">${ratePct}<span class="u">%</span></div></div>
+        <div class="stat"><div class="k">⚠️ 待改进</div><div class="v">${warnDays}<span class="u">天</span></div></div>
+        <div class="stat"><div class="k">❌ 未达标</div><div class="v">${failDays}<span class="u">天</span></div></div>
+      </div>
+    </div>
+    ${alertHtml?`<div class="section-title">需要关注</div>${alertHtml}`:''}
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0 4px">
+      <button class="btn primary lg" onclick="autoCheckinAll()">⚡ 一键打卡并生成审核报告</button>
+      <span class="hint">自动捕捉最近一周(${wk.weekLabel||'—'})计划数据 → 完成三板块打卡 → 输出报告</span>
+    </div>
+    <div id="auditReport"></div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0 2px">
+      <button class="btn warn" onclick="collectErrors()">📕 错误收集（批改今日习题）</button>
+      <span class="hint">对照本周习题库自动批改，错题归集为 EW/AI/SE/RK 格式，可复制进对应错题本 .md</span>
+    </div>
+    <div id="errorCollect"></div>
+    <div class="section-title">① 快速审核（自评闭环）</div>
+    ${todayCard}
+    <div class="section-title">② 深度审核（对接资料体系）</div>
+    ${deepHtml}
+    <div class="section-title">审核历史</div>
+    <div id="auditHist"></div>`;
+  renderAuditHist();
+}
+function setupWeek(){
+  const aw=autoWeekPaths();
+  openModal('本周资料路径',
+    `<div class="hint">已按当前日期自动探测到本周：<b>${aw.weekLabel}</b>。直接用下方自动路径即可，无需手动填写；也可改为手动路径。</div>
+     <div class="field"><label>周计划 .md</label><input id="wkPlan" value="${(discoverWeek().plan||aw.plan).replace(/"/g,'&quot;')}"></div>
+     <div class="field"><label>习题 .md</label><input id="wkQuiz" value="${(discoverWeek().quiz||aw.quiz).replace(/"/g,'&quot;')}"></div>
+     <div class="hint" style="margin-top:6px">💡 想让「一键打卡」带上今天的具体任务？把对话 agent 解析出的今日计划（JSON 形如 {"embedded-workflow":"ADC采样","ai-trainer":"MCP实战"}）存到剪贴板，点下方按钮读取。留空则用板块目标兜底。</div>
+     <div class="field"><label>今日计划（可选，粘贴 JSON）</label><textarea id="wkPlanCache" rows="2" placeholder='{"embedded-workflow":"ADC采样·45","ai-trainer":"MCP实战"}'></textarea></div>`,
+    ()=>{
+      const p=document.getElementById('wkPlan').value.trim();
+      const q=document.getElementById('wkQuiz').value.trim();
+      if(!p){toast('请填写周计划路径');return;}
+      setWeekPaths(p,q);
+      const wlabel=(p.replace(/^.*[\\/]/,'').replace(/周计划\.md$/,''));
+      const cacheRaw=document.getElementById('wkPlanCache').value.trim();
+      if(cacheRaw){try{const obj=JSON.parse(cacheRaw);localStorage.setItem('wb_pa_plan_'+wlabel,JSON.stringify(obj));toast('✓ 已保存路径与今日计划缓存');}catch(e){toast('路径已保存，但计划 JSON 格式有误未写入');}}
+      else toast('✓ 已保存本周路径');
+      renderAudit();
+    });
+}
+function toggleDeep(sec,date){
+  let a=auditOf(date);
+  if(!a){a={date,rate:'good',note:'',done:SECTIONS.filter(s=>secRecords(s.id).some(r=>r.date===date)).length,pain:false,deep:[]};audits.push(a);}
+  if(!a.deep)a.deep=[];
+  const i=a.deep.indexOf(sec);
+  if(i>=0)a.deep.splice(i,1);else a.deep.push(sec);
+  saveAudit();
+  renderAudit();
+  if(document.querySelector('.view.active')&&document.querySelector('.view.active').id==='view-home')renderHome();
+}
+function rateLabel(r){return r==='good'?'✅ 达标':r==='warn'?'⚠️ 部分达标':'❌ 未达标';}
+function ensureView(id,name){
+  let el=document.getElementById('view-'+id);
+  if(!el){el=document.createElement('section');el.className='view';el.id='view-'+id;
+    el.innerHTML=`<div class="section-title">${name}</div><div id="auditBody"></div>`;
+    document.getElementById('main').appendChild(el);}
+  return document.getElementById('auditBody')||el;
+}
+function renderAuditHist(){
+  const box=document.getElementById('auditHist');
+  if(!box)return;
+  const list=audits.slice().sort((a,b)=>b.date.localeCompare(a.date));
+  if(list.length===0){box.innerHTML='<div class="empty">还没有审核记录，完成今天的审核吧 🔍</div>';return;}
+  box.innerHTML=list.map(a=>`<div class="rec" style="margin-bottom:11px;cursor:pointer" onclick="openAudit('${a.date}')">
+    <div class="top"><b>${rateLabel(a.rate)}</b><span class="date">${a.date}</span></div>
+    <div class="meta"><span>达标版块 <b>${a.done}</b>/3</span>${a.pain?'<span class="pain-on">有疼痛记录⚠</span>':''}</div>
+    ${a.note?`<div class="note">${esc(a.note)}</div>`:''}
+  </div>`).join('');
+}
+function openAudit(date){
+  const existing=auditOf(date);
+  const secRows=SECTIONS.map(s=>{
+    const rs=secRecords(s.id).filter(r=>r.date===date);
+    const cnt=rs.length;
+    const dur=rs.reduce((a,r)=>a+(r.duration||0),0);
+    const pain=rs.some(r=>r.pain);
+    return `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 4px;border-top:1px dashed rgba(255,255,255,.08)">
+      <div style="display:flex;align-items:center;gap:9px"><span style="width:9px;height:9px;border-radius:50%;background:${s.color};box-shadow:0 0 6px ${s.color}"></span>
+        <span style="font-size:14px">${s.short}</span></div>
+      <div style="font-size:13px;color:var(--muted)">${cnt>0?`${cnt}次 · ${dur}分${pain?' · <span class="pain-on">疼痛⚠</span>':''}`:'<span class="tag-over" style="font-size:12px">未打卡</span>'}</div>
+    </div>`;
+  }).join('');
+  const cur=existing?existing.rate:'good';
+  openModal('审核 '+date,
+    `<div style="margin-bottom:14px">${secRows}</div>
+     <div class="field"><label>整体自评</label>
+       <select id="auditRate">
+         <option value="good" ${cur==='good'?'selected':''}>✅ 达标（学习版块基本完成）</option>
+         <option value="warn" ${cur==='warn'?'selected':''}>⚠️ 部分达标（有遗漏但可接受）</option>
+         <option value="fail" ${cur==='fail'?'selected':''}>❌ 未达标（明显缺漏）</option>
+       </select></div>
+     <div class="field"><label>今日复盘（一句话）</label>
+       <textarea id="auditNote" rows="3" placeholder="如：康复顺利无疼痛，AI学习偏少，明日补上">${existing?esc(existing.note):''}</textarea></div>`,
+    ()=>{
+      const rate=document.getElementById('auditRate').value;
+      const note=document.getElementById('auditNote').value.trim();
+      const done=SECTIONS.filter(s=>secRecords(s.id).some(r=>r.date===date)).length;
+      const pain=SECTIONS.some(s=>secRecords(s.id).some(r=>r.date===date&&r.pain));
+      const ex=auditOf(date);
+      if(ex){ex.rate=rate;ex.note=note;ex.done=done;ex.pain=pain;}
+      else audits.push({date,rate,note,done,pain});
+      saveAudit();
+      toast('🔍 审核已'+ (ex?'更新':'提交'));
+      renderAudit();
+      if(document.querySelector('.view.active').id==='view-home')renderHome();
+    });
+}
+
+/* ============ 图表（内联 SVG） ============ */
+function stackedBar(el,days,series){
+  const W=560,H=210,pl=18,pr=10,pt=12,pb=26;const n=days.length;
+  const totals=days.map((_,i)=>series.reduce((a,s)=>a+s.counts[i],0));
+  const max=Math.max(1,...totals);const bw=(W-pl-pr)/n*0.5;
+  let svg='';
+  days.forEach((d,i)=>{
+    const x=pl+i*(W-pl-pr)/n+(W-pl-pr)/n*0.25;let yb=H-pb;
+    series.forEach(s=>{const h=(s.counts[i]/max)*(H-pt-pb);if(h>0){svg+=`<rect x="${x}" y="${yb-h}" width="${bw}" height="${h}" rx="2" fill="${s.color}" opacity="0.85"><title>${s.color}:${s.counts[i]}</title></rect>`;}yb-=h;});
+    svg+=`<text x="${x+bw/2}" y="${H-9}" fill="#9a93c7" font-size="9" text-anchor="middle">${d.slice(5)}</text>`;
+  });
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}">${svg}</svg>`;
+}
+
+/* ============ 删除 / 导出 / 导入 / 清空 ============ */
+function delRec(id){const rec=records.find(r=>r.id===id);openModal('删除记录','确定删除这条打卡记录？此操作不可撤销。',()=>{records=records.filter(r=>r.id!==id);save();if(rec)renderList(rec.section);const v=document.querySelector('.view.active').id.replace('view-','');if(v==='home')renderHome();toast('已删除');});}
+function exportJSON(){const payload={records,audits};const b=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='pa-checkin-'+todayStr()+'.json';a.click();toast('已导出 JSON 备份（含审核）');}
+function importJSON(e){const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const data=JSON.parse(rd.result);const recs=Array.isArray(data)?data:data.records;if(!Array.isArray(recs))throw 0;const merged=records.slice();let add=0;recs.forEach(r=>{if(r&&r.section&&r.date&&!merged.some(m=>m.id===r.id)){merged.push(r);add++;}});records=merged;save();if(Array.isArray(data.audits)){const am=audits.slice();let aa=0;data.audits.forEach(a=>{if(a&&a.date&&!am.some(m=>m.date===a.date)){am.push(a);aa++;}});audits=am;saveAudit();}if(document.querySelector('.view.active').id==='view-home')renderHome();toast('已导入，新增打卡 '+add+' 条'+(data.audits?'、审核 '+aa+' 条':''));}catch(err){toast('导入失败：格式不正确');}e.target.value='';};rd.readAsText(f);}
+function clearAll(){openModal('清空数据','将删除全部 '+records.length+' 条打卡记录、'+audits.length+' 条审核且无法恢复。建议先导出备份。',()=>{records=[];audits=[];save();saveAudit();renderHome();toast('已清空');});}
+
+/* ============ 模态 ============ */
+let modalCb=null;
+function openModal(t,x,cb){document.getElementById('modalTitle').textContent=t;const mt=document.getElementById('modalText');mt.innerHTML=x;const m=document.getElementById('modalBg');m.querySelector('.modal').style.maxWidth='420px';m.classList.add('show');modalCb=cb;}
+function closeModal(ok){document.getElementById('modalBg').classList.remove('show');if(ok&&modalCb)modalCb();modalCb=null;}
+document.getElementById('modalBg').addEventListener('click',e=>{if(e.target.id==='modalBg')closeModal(false);});
+
+/* ============ 粒子背景 ============ */
+(function(){const c=document.getElementById('bg');const x=c.getContext('2d');let w,h,p=[];
+  function rs(){w=c.width=innerWidth;h=c.height=innerHeight;const n=Math.min(70,Math.floor(w*h/16000));p=Array.from({length:n},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,r:Math.random()*1.8+.6}));}
+  function lp(){x.clearRect(0,0,w,h);for(let i=0;i<p.length;i++){const a=p[i];a.x+=a.vx;a.y+=a.vy;if(a.x<0||a.x>w)a.vx*=-1;if(a.y<0||a.y>h)a.vy*=-1;x.beginPath();x.arc(a.x,a.y,a.r,0,7);x.fillStyle='rgba(0,240,255,.8)';x.fill();for(let j=i+1;j<p.length;j++){const b=p[j];const dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy);if(d<120){x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.strokeStyle='rgba(168,85,247,'+(.12*(1-d/120))+')';x.lineWidth=1;x.stroke();}}}requestAnimationFrame(lp);}
+  addEventListener('resize',rs);rs();lp();})();
+
+/* ============ 启动 ============ */
+load();loadAudit();
+// 自动校准：清除指向历史周(早于正式重排起点 2026-09-14)的手动周路径设置，回到自动识别
+(function autoFixWeek(){
+  try{
+    const manual=JSON.parse(localStorage.getItem('wb_pa_week')||'null');
+    if(manual&&manual.weekLabel&&manual.weekLabel<'20260914'){
+      localStorage.removeItem('wb_pa_week');
+    }
+  }catch(e){}
+})();
+// 计划/习题缓存不再写死历史周：当前周由 discoverWeek()/autoWeekPaths() 自动识别（按当前日期），
+// 今日具体计划 JSON 由用户在「深度审核→设置路径」粘贴，或由对话 agent 写入 localStorage('wb_pa_plan_'+weekLabel)。
+// 一键打卡读不到缓存时，用板块名兜底（见 quickCheckin），并保持提示。
+applyLayout();buildNav();renderHome();flashSync();
+</script>
+</body>
+</html>
