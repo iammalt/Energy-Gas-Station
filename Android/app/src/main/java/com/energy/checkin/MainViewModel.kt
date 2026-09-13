@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import com.energy.checkin.repository.CheckinRepository
 import com.energy.checkin.repository.CloudBaseCheckinRepository
 import com.energy.checkin.repository.LocalCheckinRepository
-import model.UserInfo
+import com.energy.checkin.model.UserInfo
 
 /**
  * 主界面 ViewModel：维护"今天各板块打卡草稿"，并负责加载/保存。

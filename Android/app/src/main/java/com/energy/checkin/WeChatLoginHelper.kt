@@ -6,7 +6,7 @@ import com.tencent.mm.opensdk.modelmsg.SendAuth
 import com.tencent.mm.opensdk.openapi.IWXAPI
 import com.tencent.mm.opensdk.openapi.WXAPIFactory
 import kotlinx.coroutines.suspendCancellableCoroutine
-import model.UserInfo
+import com.energy.checkin.model.UserInfo
 import org.json.JSONObject
 import java.net.URL
 import kotlin.coroutines.resume

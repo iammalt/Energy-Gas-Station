@@ -2,12 +2,12 @@ package com.energy.checkin.repository
 
 import android.content.Context
 import com.energy.checkin.CloudBaseManager
-import model.UserInfo
+import com.energy.checkin.model.UserInfo
 
 /**
  * CloudBase 真实实现（接云模板）。
  *
- * ⚠️ 本文件是"填空式模板"：默认工程未包含 CloudBase Android SDK 依赖，因此本类不会参与编译。
+ * ?? 本文件是"填空式模板"：默认工程未包含 CloudBase Android SDK 依赖，因此本类不会参与编译。
  * 接入步骤：
  *   1) 在 app/build.gradle 取消 CloudBase SDK 依赖注释，并替换为官方 Maven 坐标。
  *   2) 在 CloudBaseManager.init() 中完成 SDK 客户端初始化。

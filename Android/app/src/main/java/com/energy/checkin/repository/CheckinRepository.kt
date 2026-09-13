@@ -1,7 +1,7 @@
 package com.energy.checkin.repository
 
 import android.content.Context
-import model.UserInfo
+import com.energy.checkin.model.UserInfo
 
 /**
  * 打卡数据仓库接口（与平台无关）。

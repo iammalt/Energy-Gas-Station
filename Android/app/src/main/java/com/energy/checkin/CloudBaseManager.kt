@@ -1,7 +1,7 @@
 package com.energy.checkin
 
 import android.content.Context
-import model.UserInfo
+import com.energy.checkin.model.UserInfo
 
 /**
  * CloudBase 客户端管理（接云的"胶水层"）。

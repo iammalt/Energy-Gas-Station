@@ -1,55 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/container"
+    android:orientation="vertical"
+    android:padding="16dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:text="@string/app_name"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+    <Button
+        android:id="@+id/btn_load"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="??" />
 
-        <LinearLayout
-            android:id="@+id/container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="12dp" />
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="??" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="16dp">
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="????????"
+        android:layout_marginTop="8dp" />
 
-            <Button
-                android:id="@+id/btn_load"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="¼ÓÔØ" />
-
-            <Button
-                android:id="@+id/btn_save"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:text="±£´æ" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/tv_status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:textSize="14sp" />
-    </LinearLayout>
-</ScrollView>
+    <!-- ????? MainActivity ?? inflate row_section ????? -->
+</LinearLayout>

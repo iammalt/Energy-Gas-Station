@@ -2,7 +2,7 @@ package com.energy.checkin.repository
 
 import android.content.Context
 import android.content.SharedPreferences
-import model.UserInfo
+import com.energy.checkin.model.UserInfo
 import org.json.JSONArray
 import org.json.JSONObject
 
